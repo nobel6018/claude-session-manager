@@ -1,6 +1,6 @@
 [package]
 name = "claude-session-manager"
-version = "0.2.0"
+version = "0.3.0"
 description = "Claude Code Session Manager - Browse, search, and resume your Claude Code sessions"
 authors = ["levit"]
 edition = "2021"
