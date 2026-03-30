@@ -4,6 +4,7 @@ import { ProjectSidebar } from "./components/ProjectSidebar";
 import { SessionList } from "./components/SessionList";
 import { PreviewPanel } from "./components/PreviewPanel";
 import { SearchBar } from "./components/SearchBar";
+import { UpdateBanner } from "./components/UpdateBanner";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { applyTheme } from "./themes";
 
@@ -20,6 +21,7 @@ function App() {
 
   return (
     <div className="flex h-screen flex-col bg-bg-primary">
+      <UpdateBanner />
       <SearchBar />
       <div className="flex flex-1 overflow-hidden">
         <ProjectSidebar />
