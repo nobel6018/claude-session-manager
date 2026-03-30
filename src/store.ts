@@ -31,7 +31,7 @@ interface AppState {
   setSearchFocused: (focused: boolean) => void;
   setSelectedIndex: (index: number) => void;
   moveSelection: (delta: number) => void;
-  resumeSession: (sessionId: string) => Promise<void>;
+  resumeSession: (sessionId: string, cwd: string) => Promise<void>;
   toggleBookmark: (sessionId: string) => Promise<void>;
   addTag: (sessionId: string, tag: string) => Promise<void>;
   removeTag: (sessionId: string, tag: string) => Promise<void>;
@@ -39,6 +39,7 @@ interface AppState {
   searchSessions: (query: string) => Promise<void>;
   setTheme: (themeId: string) => void;
   refresh: () => Promise<void>;
+  deleteSession: (sessionId: string, projectId: string) => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -108,6 +109,16 @@ export const useStore = create<AppState>((set, get) => ({
   setSelectedIndex: (index: number) => set({ selectedIndex: index }),
   setTagInput: (input: string) => set({ tagInput: input }),
 
+  deleteSession: async (sessionId: string, projectId: string) => {
+    await invoke("delete_session", { sessionId, projectId });
+    const { selectedSessionId, selectedProjectId } = get();
+    if (selectedSessionId === sessionId) {
+      set({ selectedSessionId: null, sessionDetail: null, selectedIndex: 0 });
+    }
+    await get().loadSessions(selectedProjectId);
+    await get().loadProjects();
+  },
+
   refresh: async () => {
     set({ isLoading: true });
     await invoke("refresh_sessions");
@@ -134,8 +145,8 @@ export const useStore = create<AppState>((set, get) => ({
     }
   },
 
-  resumeSession: async (sessionId: string) => {
-    await invoke("resume_session", { sessionId });
+  resumeSession: async (sessionId: string, cwd: string) => {
+    await invoke("resume_session", { sessionId, cwd });
   },
 
   toggleBookmark: async (sessionId: string) => {

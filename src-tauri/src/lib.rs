@@ -22,6 +22,7 @@ pub fn run() {
             toggle_bookmark,
             get_all_tags,
             refresh_sessions,
+            delete_session,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

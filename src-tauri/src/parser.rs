@@ -44,6 +44,7 @@ pub fn parse_session_summary(path: &Path) -> Option<SessionSummaryRaw> {
 
     let mut first_user_message: Option<String> = None;
     let mut session_name: Option<String> = None;
+    let mut cwd: Option<String> = None;
     let mut message_count: usize = 0;
     let mut human_message_count: usize = 0;
     let mut tool_use_count: usize = 0;
@@ -65,6 +66,13 @@ pub fn parse_session_summary(path: &Path) -> Option<SessionSummaryRaw> {
         };
 
         let msg_type = obj.get("type").and_then(|t| t.as_str()).unwrap_or("");
+
+        // Extract cwd from first message that has it
+        if cwd.is_none() {
+            if let Some(c) = obj.get("cwd").and_then(|v| v.as_str()) {
+                cwd = Some(c.to_string());
+            }
+        }
 
         // Extract timestamp for session start
         if started_at.is_none() {
@@ -127,6 +135,7 @@ pub fn parse_session_summary(path: &Path) -> Option<SessionSummaryRaw> {
     Some(SessionSummaryRaw {
         title,
         session_name,
+        cwd: cwd.unwrap_or_default(),
         started_at: started_at.unwrap_or(0),
         message_count,
         human_message_count,
@@ -330,6 +339,7 @@ fn truncate(s: &str, max_len: usize) -> String {
 pub struct SessionSummaryRaw {
     pub title: String,
     pub session_name: Option<String>,
+    pub cwd: String,
     pub started_at: i64,
     pub message_count: usize,
     pub human_message_count: usize,

@@ -11,6 +11,7 @@ export function useKeyboardNav() {
     searchFocused,
     setSearchQuery,
     refresh,
+    deleteSession,
   } = useStore();
 
   useEffect(() => {
@@ -34,7 +35,7 @@ export function useKeyboardNav() {
         e.preventDefault();
         const session = sessions[selectedIndex];
         if (session) {
-          resumeSession(session.sessionId);
+          resumeSession(session.sessionId, session.cwd);
         }
         return;
       }
@@ -54,6 +55,16 @@ export function useKeyboardNav() {
         document.activeElement?.tagName === "INPUT" ||
         document.activeElement?.tagName === "TEXTAREA"
       ) {
+        return;
+      }
+
+      // Delete / Backspace: delete selected session directly (recoverable — renamed to .deleted)
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        const session = sessions[selectedIndex];
+        if (session) {
+          deleteSession(session.sessionId, session.projectId);
+        }
         return;
       }
 
@@ -89,5 +100,6 @@ export function useKeyboardNav() {
     searchFocused,
     setSearchQuery,
     refresh,
+    deleteSession,
   ]);
 }

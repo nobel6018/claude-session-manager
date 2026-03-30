@@ -65,7 +65,7 @@ export function PreviewPanel() {
           </div>
           <button
             className="shrink-0 rounded-lg border border-accent/40 px-4 py-2.5 text-[13px] font-medium text-accent transition-all duration-150 hover:border-accent/70 hover:bg-accent/10 active:scale-95"
-            onClick={() => resumeSession(selectedSession.sessionId)}
+            onClick={() => resumeSession(selectedSession.sessionId, selectedSession.cwd)}
             title="Resume in terminal (⌘↩)"
           >
             Resume

@@ -9,6 +9,7 @@ export interface SessionSummary {
   sessionId: string;
   projectId: string;
   projectName: string;
+  cwd: string;
   title: string;
   startedAt: number;
   messageCount: number;

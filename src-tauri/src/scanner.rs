@@ -111,6 +111,7 @@ pub fn scan_sessions(
                         session_id: session_id.clone(),
                         project_id: dir_name.clone(),
                         project_name: display_name.clone(),
+                        cwd: raw.cwd,
                         title: raw.title,
                         started_at: raw.started_at,
                         message_count: raw.message_count,

@@ -1,6 +1,95 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { useStore } from "../store";
 import type { SessionSummary } from "../types";
+
+interface ContextMenu {
+  x: number;
+  y: number;
+  session: SessionSummary;
+}
+
+function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () => void }) {
+  const { deleteSession, resumeSession } = useStore();
+  const ref = useRef<HTMLDivElement>(null);
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  const handleDeleteConfirm = async () => {
+    onClose();
+    await deleteSession(menu.session.sessionId, menu.session.projectId);
+  };
+
+  const handleResume = async () => {
+    onClose();
+    await resumeSession(menu.session.sessionId, menu.session.cwd);
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="fixed z-50 min-w-48 overflow-hidden rounded-lg border border-border bg-bg-secondary py-1 shadow-xl"
+      style={{ left: menu.x, top: menu.y }}
+    >
+      {confirming ? (
+        <div className="px-4 py-2">
+          <p className="mb-2 text-xs text-text-secondary">정말 삭제할까요?</p>
+          <div className="flex gap-2">
+            <button
+              className="flex-1 rounded-md bg-red/15 px-3 py-1 text-xs font-medium text-red hover:bg-red/25"
+              onClick={handleDeleteConfirm}
+            >
+              삭제
+            </button>
+            <button
+              className="flex-1 rounded-md bg-bg-hover px-3 py-1 text-xs text-text-secondary hover:text-text-primary"
+              onClick={() => setConfirming(false)}
+            >
+              취소
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <button
+            className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-text-primary transition-colors hover:bg-bg-hover"
+            onClick={handleResume}
+          >
+            <svg className="h-3.5 w-3.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            iTerm2에서 재개
+            <span className="ml-auto text-xs text-text-muted">⌘↩</span>
+          </button>
+          <div className="my-1 border-t border-divider" />
+          <button
+            className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-red transition-colors hover:bg-bg-hover"
+            onClick={() => setConfirming(true)}
+          >
+            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            세션 삭제
+            <span className="ml-auto text-xs text-text-muted">⌫</span>
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
 
 export function SessionList() {
   const {
@@ -13,6 +102,12 @@ export function SessionList() {
     isLoading,
   } = useStore();
   const listRef = useRef<HTMLDivElement>(null);
+  const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent, session: SessionSummary) => {
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY, session });
+  }, []);
 
   useEffect(() => {
     const el = listRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
@@ -53,26 +148,35 @@ export function SessionList() {
   }
 
   return (
-    <div
-      ref={listRef}
-      className="flex w-[360px] flex-col overflow-y-auto border-r border-divider bg-bg-primary"
-    >
-      {sessions.map((session, index) => (
-        <SessionCard
-          key={session.sessionId}
-          session={session}
-          index={index}
-          isSelected={
-            selectedSessionId === session.sessionId || selectedIndex === index
-          }
-          onSelect={() => {
-            setSelectedIndex(index);
-            selectSession(session.sessionId, session.projectId);
-          }}
-          onToggleBookmark={() => toggleBookmark(session.sessionId)}
+    <>
+      <div
+        ref={listRef}
+        className="flex w-[360px] flex-col overflow-y-auto border-r border-divider bg-bg-primary"
+      >
+        {sessions.map((session, index) => (
+          <SessionCard
+            key={session.sessionId}
+            session={session}
+            index={index}
+            isSelected={
+              selectedSessionId === session.sessionId || selectedIndex === index
+            }
+            onSelect={() => {
+              setSelectedIndex(index);
+              selectSession(session.sessionId, session.projectId);
+            }}
+            onToggleBookmark={() => toggleBookmark(session.sessionId)}
+            onContextMenu={(e) => handleContextMenu(e, session)}
+          />
+        ))}
+      </div>
+      {contextMenu && (
+        <ContextMenuPopup
+          menu={contextMenu}
+          onClose={() => setContextMenu(null)}
         />
-      ))}
-    </div>
+      )}
+    </>
   );
 }
 
@@ -82,12 +186,14 @@ function SessionCard({
   isSelected,
   onSelect,
   onToggleBookmark,
+  onContextMenu,
 }: {
   session: SessionSummary;
   index: number;
   isSelected: boolean;
   onSelect: () => void;
   onToggleBookmark: () => void;
+  onContextMenu: (e: React.MouseEvent) => void;
 }) {
   const date = new Date(session.startedAt);
   const dateStr = formatRelativeDate(date);
@@ -96,6 +202,7 @@ function SessionCard({
   return (
     <div
       data-index={index}
+      onContextMenu={onContextMenu}
       className={`group cursor-pointer border-b border-divider px-5 py-2.5 transition-colors duration-100 ${
         isSelected
           ? "border-l-[3px] border-l-accent bg-bg-selected"

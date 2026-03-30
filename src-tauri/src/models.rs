@@ -15,6 +15,7 @@ pub struct SessionSummary {
     pub session_id: String,
     pub project_id: String,
     pub project_name: String,
+    pub cwd: String,
     pub title: String,
     pub started_at: i64,
     pub message_count: usize,

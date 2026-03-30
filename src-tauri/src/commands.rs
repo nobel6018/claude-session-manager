@@ -97,13 +97,20 @@ pub fn search_sessions(query: String) -> Result<Vec<SessionSummary>, String> {
 }
 
 #[tauri::command]
-pub async fn resume_session(session_id: String) -> Result<(), String> {
+pub async fn resume_session(session_id: String, cwd: String) -> Result<(), String> {
+    // cd to project directory first so claude --resume can find the session
+    let cmd = format!("cd {} && claude --resume {}", cwd, session_id);
     let script = format!(
         r#"tell application "iTerm2"
             activate
-            create window with default profile command "claude --resume {}"
+            tell current window
+                create tab with default profile
+                tell current session
+                    write text "{}"
+                end tell
+            end tell
         end tell"#,
-        session_id
+        cmd
     );
 
     std::process::Command::new("osascript")
@@ -133,6 +140,41 @@ pub fn toggle_bookmark(session_id: String) -> Result<bool, String> {
     let result = db().toggle_bookmark(&session_id).map_err(|e| e.to_string())?;
     invalidate_cache();
     Ok(result)
+}
+
+#[tauri::command]
+pub fn delete_session(session_id: String, project_id: String) -> Result<(), String> {
+    let path = claude_dir()
+        .join("projects")
+        .join(&project_id)
+        .join(format!("{}.jsonl", session_id));
+
+    if !path.exists() {
+        return Err(format!("Session file not found: {}", session_id));
+    }
+
+    let deleted_path = claude_dir()
+        .join("projects")
+        .join(&project_id)
+        .join(format!("{}.jsonl.deleted", session_id));
+
+    std::fs::rename(&path, &deleted_path)
+        .map_err(|e| format!("Failed to delete session: {}", e))?;
+
+    // Remove only the deleted session from cache — much faster than full rescan
+    if let Ok(mut guard) = cache().lock() {
+        if let Some(ref mut cache) = *guard {
+            cache.sessions.retain(|s| s.session_id != session_id);
+            // Update project session counts
+            for project in &mut cache.projects {
+                if project.id == project_id && project.session_count > 0 {
+                    project.session_count -= 1;
+                }
+            }
+        }
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
