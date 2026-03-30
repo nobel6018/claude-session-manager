@@ -4,6 +4,8 @@
 
 [Claude Code](https://claude.com/claude-code) 세션을 탐색, 검색, 재개할 수 있는 데스크톱 GUI 앱입니다.
 
+![Claude Session Manager](./assets/screenshot.svg)
+
 **Tauri v2** (Rust 백엔드) + **React** + **TypeScript** + **Tailwind CSS**로 구축되었습니다.
 
 ## 주요 기능

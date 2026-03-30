@@ -4,6 +4,8 @@
 
 A desktop GUI for browsing, searching, and resuming your [Claude Code](https://claude.com/claude-code) sessions.
 
+![Claude Session Manager](./assets/screenshot.svg)
+
 Built with **Tauri v2** (Rust backend) + **React** + **TypeScript** + **Tailwind CSS**.
 
 ## Features
