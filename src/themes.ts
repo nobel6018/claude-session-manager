@@ -37,8 +37,8 @@ export const themes: Theme[] = [
       "bg-hover": "#37474F",
       "bg-selected": "#37474F",
       "text-primary": "#B0BEC5",
-      "text-secondary": "#78909C",
-      "text-muted": "#607D8B",
+      "text-secondary": "#90A4AE", // ↑ #78909C → 대비 개선
+      "text-muted": "#78909C",     // ↑ #607D8B → 대비 개선
       accent: "#009688",
       "accent-dim": "#00796B",
       "accent-glow": "#00968812",
@@ -61,8 +61,8 @@ export const themes: Theme[] = [
       "bg-hover": "#3C3C3C",
       "bg-selected": "#3C3C3C",
       "text-primary": "#EEFFFF",
-      "text-secondary": "#B0BEC5",
-      "text-muted": "#616161",
+      "text-secondary": "#B0BEC5", // 유지 (이미 충분)
+      "text-muted": "#8E8E8E",     // ↑ #616161 → 대비 개선
       accent: "#FF9800",
       "accent-dim": "#CC7A00",
       "accent-glow": "#FF980012",
@@ -85,8 +85,8 @@ export const themes: Theme[] = [
       "bg-hover": "#44475a",
       "bg-selected": "#44475a",
       "text-primary": "#f8f8f2",
-      "text-secondary": "#6272a4",
-      "text-muted": "#6272a4",
+      "text-secondary": "#a0abc8", // ↑ #6272a4 → 대비 개선
+      "text-muted": "#8090bb",     // ↑ #6272a4 → 대비 개선 + 차별화
       accent: "#bd93f9",
       "accent-dim": "#9771c7",
       "accent-glow": "#bd93f912",
@@ -109,8 +109,8 @@ export const themes: Theme[] = [
       "bg-hover": "#3e4452",
       "bg-selected": "#3e4452",
       "text-primary": "#abb2bf",
-      "text-secondary": "#5c6370",
-      "text-muted": "#4b5263",
+      "text-secondary": "#848d9a", // ↑ #5c6370 → 대비 개선
+      "text-muted": "#6b7280",     // ↑ #4b5263 → 대비 개선
       accent: "#61afef",
       "accent-dim": "#4d8cbf",
       "accent-glow": "#61afef12",
@@ -133,8 +133,8 @@ export const themes: Theme[] = [
       "bg-hover": "#1d3b53",
       "bg-selected": "#1d3b53",
       "text-primary": "#d6deeb",
-      "text-secondary": "#5f7e97",
-      "text-muted": "#4f6d87",
+      "text-secondary": "#7b97ae", // ↑ #5f7e97 → 대비 개선
+      "text-muted": "#5f7e97",     // ↑ #4f6d87 → 대비 개선
       accent: "#82aaff",
       "accent-dim": "#6888cc",
       "accent-glow": "#82aaff12",
@@ -157,8 +157,8 @@ export const themes: Theme[] = [
       "bg-hover": "#33415e",
       "bg-selected": "#33415e",
       "text-primary": "#cbccc6",
-      "text-secondary": "#707a8c",
-      "text-muted": "#5c6773",
+      "text-secondary": "#8c96a8", // ↑ #707a8c → 대비 개선
+      "text-muted": "#707a8c",     // ↑ #5c6773 → 대비 개선
       accent: "#ffcc66",
       "accent-dim": "#cc9f47",
       "accent-glow": "#ffcc6612",
