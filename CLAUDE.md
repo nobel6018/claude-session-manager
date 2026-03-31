@@ -1,5 +1,24 @@
 # Claude Session Manager — 프로젝트 가이드
 
+## 프론트엔드 배포 (Vercel CDN)
+
+- **URL**: https://claude-session-manager.vercel.app
+- **방식**: 로컬 빌드 → prebuilt 배포 (소스 전체 업로드 안 함)
+- Tauri 앱은 `frontendDist`로 이 URL을 로드 → UI 변경은 앱 재배포 없이 즉시 반영
+- Rust 백엔드 변경 시에만 앱 재빌드 필요
+
+### UI 변경 배포 방법
+```bash
+npm run build                               # dist/ 생성
+rm -rf .vercel/output && mkdir -p .vercel/output/static
+cp -r dist/* .vercel/output/static/
+echo '{"version":3}' > .vercel/output/config.json
+vercel deploy --prebuilt --yes --prod       # 254KB만 업로드, 수초 완료
+git add -A && git commit && git push        # 코드도 함께 push
+```
+
+---
+
 ## 릴리즈 규칙
 
 ### 버전 관리

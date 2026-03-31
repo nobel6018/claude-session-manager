@@ -7,7 +7,7 @@
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
     "beforeBuildCommand": "",
-    "frontendDist": "https://nobel6018.github.io/claude-session-manager"
+    "frontendDist": "https://claude-session-manager.vercel.app"
   },
   "app": {
     "windows": [
@@ -23,7 +23,7 @@
       "csp": null,
       "dangerousRemoteDomainIpcAccess": [
         {
-          "domain": "nobel6018.github.io",
+          "domain": "claude-session-manager.vercel.app",
           "windows": ["main"],
           "plugins": [],
           "enableTauriAPI": true
