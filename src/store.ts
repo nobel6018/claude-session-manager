@@ -22,6 +22,7 @@ interface AppState {
   theme: Theme;
   pinRenamed: boolean;
   showShortcuts: boolean;
+  sidebarCollapsed: boolean;
 
   // Actions
   loadProjects: () => Promise<void>;
@@ -42,6 +43,7 @@ interface AppState {
   setTheme: (themeId: string) => void;
   setPinRenamed: (value: boolean) => void;
   setShowShortcuts: (value: boolean) => void;
+  toggleSidebar: () => void;
   refresh: () => Promise<void>;
   deleteSession: (sessionId: string, projectId: string) => Promise<void>;
 }
@@ -64,6 +66,7 @@ export const useStore = create<AppState>((set, get) => ({
   })(),
   pinRenamed: localStorage.getItem("pinRenamed") === "true",
   showShortcuts: false,
+  sidebarCollapsed: localStorage.getItem("sidebarCollapsed") === "true",
 
   loadProjects: async () => {
     const projects = await invoke<Project[]>("get_projects");
@@ -146,6 +149,12 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   setShowShortcuts: (value: boolean) => set({ showShortcuts: value }),
+
+  toggleSidebar: () => {
+    const next = !get().sidebarCollapsed;
+    localStorage.setItem("sidebarCollapsed", String(next));
+    set({ sidebarCollapsed: next });
+  },
 
   moveSelection: (delta: number) => {
     const { sessions, selectedIndex } = get();

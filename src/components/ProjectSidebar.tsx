@@ -18,54 +18,83 @@ function formatProjectName(name: string): { primary: string; secondary: string }
   return { primary, secondary };
 }
 
-export function ProjectSidebar() {
-  const { projects, selectedProjectId, selectProject } = useStore();
+export function ProjectSidebar({ width }: { width: number }) {
+  const { projects, selectedProjectId, selectProject, sidebarCollapsed, toggleSidebar } = useStore();
 
   const totalSessions = projects.reduce((sum, p) => sum + p.sessionCount, 0);
 
+  const effectiveWidth = sidebarCollapsed ? 28 : width;
+
   return (
-    <div className="flex w-56 flex-col border-r border-divider bg-bg-panel">
-      {/* Header */}
-      <div className="px-5 pb-3 pt-5">
-        <h2 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
-          Projects
-        </h2>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-3 pb-4">
-        {/* All Sessions */}
+    <div
+      className="flex shrink-0 flex-col border-r border-divider bg-bg-panel overflow-hidden"
+      style={{ width: effectiveWidth, transition: "width 180ms ease" }}
+    >
+      {sidebarCollapsed ? (
+        /* Collapsed strip — click to expand */
         <button
-          className={`mb-1 flex w-full items-center justify-between rounded-lg px-4 py-3 text-left transition-colors duration-100 ${
-            selectedProjectId === null
-              ? "bg-accent-glow text-accent"
-              : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
-          }`}
-          onClick={() => selectProject(null)}
+          className="flex flex-1 w-full items-start justify-center pt-5 text-text-muted hover:text-accent transition-colors"
+          onClick={toggleSidebar}
+          title="사이드바 펼치기 (⌘.)"
         >
-          <span className="text-[13px] font-medium">All Sessions</span>
-          <span
-            className={`rounded-full px-2 py-0.5 font-mono text-[10px] ${
-              selectedProjectId === null
-                ? "bg-accent/15 text-accent"
-                : "bg-bg-tertiary text-text-muted"
-            }`}
-          >
-            {totalSessions}
-          </span>
+          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
+      ) : (
+        <>
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 pb-3 pt-5">
+            <h2 className="text-[10px] font-semibold uppercase tracking-widest text-text-muted">
+              Projects
+            </h2>
+            <button
+              className="text-text-muted hover:text-accent transition-colors"
+              onClick={toggleSidebar}
+              title="사이드바 접기 (⌘.)"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
 
-        <div className="mx-1 my-3 border-t border-divider" />
+          <div className="flex-1 overflow-y-auto px-3 pb-4">
+            {/* All Sessions */}
+            <button
+              className={`mb-1 flex w-full items-center justify-between rounded-lg px-4 py-3 text-left transition-colors duration-100 ${
+                selectedProjectId === null
+                  ? "bg-accent-glow text-accent"
+                  : "text-text-secondary hover:bg-bg-hover hover:text-text-primary"
+              }`}
+              onClick={() => selectProject(null)}
+            >
+              <span className="text-[13px] font-medium">All Sessions</span>
+              <span
+                className={`rounded-full px-2 py-0.5 font-mono text-[10px] ${
+                  selectedProjectId === null
+                    ? "bg-accent/15 text-accent"
+                    : "bg-bg-tertiary text-text-muted"
+                }`}
+              >
+                {totalSessions}
+              </span>
+            </button>
 
-        {/* Project List */}
-        {projects.map((project) => (
-          <ProjectItem
-            key={project.id}
-            project={project}
-            isSelected={selectedProjectId === project.id}
-            onSelect={() => selectProject(project.id)}
-          />
-        ))}
-      </div>
+            <div className="mx-1 my-3 border-t border-divider" />
+
+            {/* Project List */}
+            {projects.map((project) => (
+              <ProjectItem
+                key={project.id}
+                project={project}
+                isSelected={selectedProjectId === project.id}
+                onSelect={() => selectProject(project.id)}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -91,7 +91,7 @@ function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () =>
   );
 }
 
-export function SessionList() {
+export function SessionList({ width }: { width: number }) {
   const {
     sessions,
     selectedSessionId,
@@ -126,7 +126,7 @@ export function SessionList() {
 
   if (isLoading) {
     return (
-      <div className="flex w-[360px] items-center justify-center border-r border-divider bg-bg-primary">
+      <div className="flex shrink-0 items-center justify-center border-r border-divider bg-bg-primary" style={{ width }}>
         <div className="text-center">
           <div className="mx-auto mb-3 h-5 w-5 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
           <span className="text-sm text-text-muted">Loading sessions...</span>
@@ -137,7 +137,7 @@ export function SessionList() {
 
   if (sessions.length === 0) {
     return (
-      <div className="flex w-[360px] flex-col items-center justify-center border-r border-divider bg-bg-primary">
+      <div className="flex shrink-0 flex-col items-center justify-center border-r border-divider bg-bg-primary" style={{ width }}>
         <svg
           className="mb-4 h-12 w-12 text-text-muted/20"
           fill="none"
@@ -163,27 +163,31 @@ export function SessionList() {
     <>
       <div
         ref={listRef}
-        className="flex w-[360px] flex-col overflow-y-auto border-r border-divider bg-bg-primary"
+        className="flex shrink-0 flex-col overflow-y-auto border-r border-divider bg-bg-primary"
+        style={{ width }}
       >
         {/* Renamed-first toggle */}
         {renamedCount > 0 && (
           <div className="flex items-center justify-between border-b border-divider px-4 py-2">
-            <span className="text-[11px] text-text-muted">
-              {renamedCount}개 이름 지정됨
-            </span>
+            <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
+              <svg className="h-3 w-3 opacity-50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+              </svg>
+              이름 지정 <span className="tabular-nums font-medium">{renamedCount}</span>개
+            </div>
             <button
               onClick={() => setPinRenamed(!pinRenamed)}
-              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
                 pinRenamed
                   ? "bg-accent/15 text-accent"
                   : "text-text-muted hover:text-text-secondary"
               }`}
-              title="이름 지정된 세션을 상단에 표시"
+              title="이름 지정된 세션을 먼저 표시"
             >
               <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
               </svg>
-              이름순 상단
+              이름 지정 먼저
             </button>
           </div>
         )}

@@ -21,6 +21,7 @@ const SHORTCUTS = [
     { keys: ["⌘Q"], description: "앱 완전 종료" },
   ]},
   { section: "기타", items: [
+    { keys: ["⌘."], description: "프로젝트 사이드바 접기/펼치기" },
     { keys: ["⌘/"], description: "단축키 목록 표시/숨김" },
   ]},
 ];

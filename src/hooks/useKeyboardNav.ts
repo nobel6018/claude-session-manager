@@ -14,10 +14,18 @@ export function useKeyboardNav() {
     deleteSession,
     showShortcuts,
     setShowShortcuts,
+    toggleSidebar,
   } = useStore();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // Cmd+.: Toggle sidebar
+      if ((e.metaKey || e.ctrlKey) && e.key === ".") {
+        e.preventDefault();
+        toggleSidebar();
+        return;
+      }
+
       // Cmd+/: Toggle shortcuts modal
       if ((e.metaKey || e.ctrlKey) && e.key === "/") {
         e.preventDefault();
@@ -116,5 +124,6 @@ export function useKeyboardNav() {
     deleteSession,
     showShortcuts,
     setShowShortcuts,
+    toggleSidebar,
   ]);
 }
