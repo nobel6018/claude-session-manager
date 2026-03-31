@@ -44,7 +44,7 @@ interface AppState {
   setPinRenamed: (value: boolean) => void;
   setShowShortcuts: (value: boolean) => void;
   toggleSidebar: () => void;
-  refresh: () => Promise<void>;
+  refresh: () => void;
   deleteSession: (sessionId: string, projectId: string) => Promise<void>;
 }
 
@@ -128,12 +128,10 @@ export const useStore = create<AppState>((set, get) => ({
     await get().loadProjects();
   },
 
-  refresh: async () => {
-    set({ isLoading: true });
-    await invoke("refresh_sessions");
-    await get().loadProjects();
-    await get().loadSessions(get().selectedProjectId);
-    set({ isLoading: false });
+  refresh: () => {
+    // ⌘R: 페이지 전체 리로드 → Vercel CDN에서 최신 프론트엔드 재취득
+    // App.tsx의 useEffect가 재실행되어 세션 데이터도 자동으로 갱신됨
+    window.location.reload();
   },
 
   setTheme: (themeId: string) => {

@@ -20,7 +20,7 @@ export function UpdateBanner() {
         <svg className="h-3.5 w-3.5 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
-        <span className="text-sm text-text-muted">최신 버전입니다 {currentVersion ? `(v${currentVersion})` : ""}</span>
+        <span className="text-sm text-text-muted">앱 최신 버전입니다 {currentVersion ? `(v${currentVersion})` : ""}</span>
       </div>
     );
   }
@@ -44,13 +44,13 @@ export function UpdateBanner() {
         />
       </svg>
       <span className="text-sm text-text-primary">
-        새 버전 <span className="font-semibold text-yellow">v{update.version}</span>이 출시되었습니다.
+        앱 업데이트 <span className="font-semibold text-yellow">v{update.version}</span> — UI는 자동 반영, 앱 바이너리 업데이트 필요
       </span>
       <button
         className="rounded-md bg-yellow/15 px-3 py-1 text-xs font-medium text-yellow transition-colors hover:bg-yellow/25"
         onClick={() => openReleasePage(update.releaseUrl)}
       >
-        다운로드
+        앱 다운로드
       </button>
       <button
         className="ml-auto text-text-muted transition-colors hover:text-text-primary"
