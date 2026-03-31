@@ -28,16 +28,19 @@ Download the latest DMG from [Releases](https://github.com/nobel6018/claude-sess
 
 > **⚠️ macOS Gatekeeper warning**
 >
-> Since the app is not signed with an Apple Developer certificate, macOS may show *"damaged and can't be opened"* on first launch.
-> Use one of the following methods to resolve this:
+> Since the app is not signed with an Apple Developer certificate, macOS will block it on first launch.
 >
-> **Option 1 — Remove quarantine via Terminal:**
+> **Recommended — use `_signed.zip` (allow via System Settings):**
+> 1. Move the app from `_signed.zip` to Applications
+> 2. First launch shows a "Not Opened" dialog → click **Done**
+> 3. Open `System Settings` → `Privacy & Security` → scroll down
+> 4. Find "Claude Session Manager was blocked" → click **Open Anyway**
+> 5. Enter Touch ID / password and the app will open
+>
+> **Alternative — one Terminal command (for `.dmg` users):**
 > ```bash
 > xattr -cr /Applications/Claude\ Session\ Manager.app
 > ```
->
-> **Option 2 — Allow in System Settings:**
-> `System Settings` → `Privacy & Security` → scroll down to the "unidentified developer" notice → click **"Open Anyway"**
 
 ### Prerequisites
 
