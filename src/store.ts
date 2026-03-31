@@ -132,8 +132,8 @@ export const useStore = create<AppState>((set, get) => ({
   deleteSession: async (sessionId: string, projectId: string) => {
     await invoke("delete_session", { sessionId, projectId });
 
-    // 전체 리로드 대신 로컬 state에서 해당 세션만 제거 → 깜빡임 없음
-    const { selectedSessionId, sessions, projects } = get();
+    const { selectedSessionId, selectedIndex, sessions, projects } = get();
+    const deletedIndex = sessions.findIndex(s => s.sessionId === sessionId);
     const updatedSessions = sessions.filter(s => s.sessionId !== sessionId);
     const updatedProjects = projects.map(p =>
       p.id === projectId && p.sessionCount > 0
@@ -141,13 +141,23 @@ export const useStore = create<AppState>((set, get) => ({
         : p
     );
 
-    set({
-      sessions: updatedSessions,
-      projects: updatedProjects,
-      ...(selectedSessionId === sessionId
-        ? { selectedSessionId: null, sessionDetail: null, selectedIndex: 0 }
-        : {}),
-    });
+    if (selectedSessionId === sessionId) {
+      // 삭제된 항목 위치에서 다음 세션 선택 (마지막이면 이전 세션)
+      const nextIndex = Math.min(deletedIndex, updatedSessions.length - 1);
+      const nextSession = nextIndex >= 0 ? updatedSessions[nextIndex] : null;
+      set({
+        sessions: updatedSessions,
+        projects: updatedProjects,
+        selectedIndex: Math.max(0, nextIndex),
+        selectedSessionId: nextSession?.sessionId ?? null,
+        sessionDetail: null,
+      });
+      if (nextSession) get().loadSessionDetail(nextSession.sessionId, nextSession.projectId);
+    } else {
+      // 선택되지 않은 항목 삭제 시 — 삭제 위치가 현재 선택 위에 있으면 index 보정
+      const adjustedIndex = deletedIndex < selectedIndex ? selectedIndex - 1 : selectedIndex;
+      set({ sessions: updatedSessions, projects: updatedProjects, selectedIndex: adjustedIndex });
+    }
   },
 
   refresh: () => {
