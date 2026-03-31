@@ -29,3 +29,4 @@ src-tauri/gen/
 
 # OMC
 .omc/
+.vercel

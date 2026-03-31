@@ -22,12 +22,20 @@ pub fn run() {
                 None::<&str>,
             )?;
 
+            let show_about = MenuItem::with_id(
+                app,
+                "show_about",
+                "About Claude Session Manager",
+                true,
+                None::<&str>,
+            )?;
+
             let app_menu = Submenu::with_items(
                 app,
                 "Claude Session Manager",
                 true,
                 &[
-                    &PredefinedMenuItem::about(app, None, None)?,
+                    &show_about,
                     &PredefinedMenuItem::separator(app)?,
                     &check_updates,
                     &PredefinedMenuItem::separator(app)?,
@@ -73,6 +81,9 @@ pub fn run() {
                 match event.id().as_ref() {
                     "check_updates" => {
                         let _ = app_handle.emit("check-for-updates", ());
+                    }
+                    "show_about" => {
+                        let _ = app_handle.emit("show-about", ());
                     }
                     "show_window" => {
                         if let Some(window) = app_handle.get_webview_window("main") {

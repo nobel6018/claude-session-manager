@@ -6,6 +6,7 @@ import { PreviewPanel } from "./components/PreviewPanel";
 import { SearchBar } from "./components/SearchBar";
 import { UpdateBanner } from "./components/UpdateBanner";
 import { ShortcutsModal } from "./components/ShortcutsModal";
+import { AboutModal } from "./components/AboutModal";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { usePanelResize } from "./hooks/usePanelResize";
 import { applyTheme } from "./themes";
@@ -62,6 +63,7 @@ function App() {
         <PreviewPanel />
       </div>
       <ShortcutsModal />
+      <AboutModal />
     </div>
   );
 }
