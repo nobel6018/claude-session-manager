@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useStore } from "../store";
 import { ThemeSelector } from "./ThemeSelector";
 import { useFlash } from "../hooks/useFlash";
@@ -7,7 +7,13 @@ import { useFlash } from "../hooks/useFlash";
 export function SearchBar() {
   const { searchQuery, setSearchQuery, searchFocused, setSearchFocused, setShowShortcuts, showShortcuts } =
     useStore();
-  const flash = useFlash(showShortcuts);
+
+  // showShortcuts가 true가 될 때만 flash (닫힐 때는 flash 안 함)
+  const [openCount, setOpenCount] = useState(0);
+  useEffect(() => {
+    if (showShortcuts) setOpenCount(c => c + 1);
+  }, [showShortcuts]);
+  const flash = useFlash(openCount);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
