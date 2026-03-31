@@ -1,3 +1,4 @@
+import React from "react";
 import { useStore } from "../store";
 import type { Project } from "../types";
 import { useFlash } from "../hooks/useFlash";
@@ -19,7 +20,7 @@ function formatProjectName(name: string): { primary: string; secondary: string }
   return { primary, secondary };
 }
 
-export function ProjectSidebar({ width }: { width: number }) {
+export function ProjectSidebar({ width, panelRef }: { width: number; panelRef?: React.RefObject<HTMLDivElement | null> }) {
   const { projects, selectedProjectId, selectProject, sidebarCollapsed, toggleSidebar } = useStore();
   const flash = useFlash(sidebarCollapsed);
 
@@ -29,6 +30,7 @@ export function ProjectSidebar({ width }: { width: number }) {
 
   return (
     <div
+      ref={panelRef}
       className="flex shrink-0 flex-col border-r border-divider bg-bg-panel overflow-hidden"
       style={{ width: effectiveWidth, transition: "width 180ms ease" }}
     >

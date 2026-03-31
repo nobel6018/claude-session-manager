@@ -54,11 +54,11 @@ function App() {
       <UpdateBanner />
       <SearchBar />
       <div className="flex flex-1 overflow-hidden">
-        <ProjectSidebar width={sidebar.width} />
+        <ProjectSidebar width={sidebar.width} panelRef={sidebar.elementRef} />
         {!sidebarCollapsed && (
           <ResizeHandle onMouseDown={sidebar.startResize} onDoubleClick={sidebar.reset} />
         )}
-        <SessionList width={session.width} />
+        <SessionList width={session.width} panelRef={session.elementRef} />
         <ResizeHandle onMouseDown={session.startResize} onDoubleClick={session.reset} />
         <PreviewPanel />
       </div>

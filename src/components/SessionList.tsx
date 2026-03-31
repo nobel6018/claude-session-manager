@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { useStore } from "../store";
 import type { SessionSummary } from "../types";
 
@@ -91,7 +91,7 @@ function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () =>
   );
 }
 
-export function SessionList({ width }: { width: number }) {
+export function SessionList({ width, panelRef }: { width: number; panelRef?: React.RefObject<HTMLDivElement | null> }) {
   const {
     sessions,
     selectedSessionId,
@@ -104,6 +104,12 @@ export function SessionList({ width }: { width: number }) {
     setPinRenamed,
   } = useStore();
   const listRef = useRef<HTMLDivElement>(null);
+
+  // listRef(스크롤)와 panelRef(드래그 DOM 조작) 두 ref를 하나의 엘리먼트에 연결
+  const mergedRef = useCallback((node: HTMLDivElement | null) => {
+    (listRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+    if (panelRef) (panelRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+  }, [panelRef]);
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
 
   const sortedSessions = useMemo(() => {
@@ -126,7 +132,7 @@ export function SessionList({ width }: { width: number }) {
 
   if (isLoading) {
     return (
-      <div className="flex shrink-0 items-center justify-center border-r border-divider bg-bg-primary" style={{ width }}>
+      <div ref={panelRef} className="flex shrink-0 items-center justify-center border-r border-divider bg-bg-primary" style={{ width }}>
         <div className="text-center">
           <div className="mx-auto mb-3 h-5 w-5 animate-spin rounded-full border-2 border-accent/30 border-t-accent" />
           <span className="text-sm text-text-muted">Loading sessions...</span>
@@ -162,7 +168,7 @@ export function SessionList({ width }: { width: number }) {
   return (
     <>
       <div
-        ref={listRef}
+        ref={mergedRef}
         className="flex shrink-0 flex-col overflow-y-auto border-r border-divider bg-bg-primary"
         style={{ width }}
       >
