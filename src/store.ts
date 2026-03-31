@@ -1,4 +1,12 @@
 import { create } from "zustand";
+
+function sortSessions(sessions: import("./types").SessionSummary[], pinRenamed: boolean) {
+  if (!pinRenamed) return sessions;
+  return [...sessions].sort((a, b) => {
+    if (a.isRenamed !== b.isRenamed) return a.isRenamed ? -1 : 1;
+    return 0;
+  });
+}
 import { invoke } from "@tauri-apps/api/core";
 import type { Project, SessionSummary, SessionDetail } from "./types";
 import { themes, defaultThemeId, applyTheme } from "./themes";
@@ -79,10 +87,10 @@ export const useStore = create<AppState>((set, get) => ({
 
   loadSessions: async (projectId?: string | null) => {
     set({ isLoading: true });
-    const sessions = await invoke<SessionSummary[]>("get_sessions", {
+    const raw = await invoke<SessionSummary[]>("get_sessions", {
       projectId: projectId ?? null,
     });
-    set({ sessions, isLoading: false, selectedIndex: 0 });
+    set({ sessions: sortSessions(raw, get().pinRenamed), isLoading: false, selectedIndex: 0 });
   },
 
   loadSessionDetail: async (sessionId: string, projectId: string) => {
@@ -146,7 +154,11 @@ export const useStore = create<AppState>((set, get) => ({
 
   setPinRenamed: (value: boolean) => {
     localStorage.setItem("pinRenamed", String(value));
-    set({ pinRenamed: value });
+    set(state => ({
+      pinRenamed: value,
+      sessions: sortSessions(state.sessions, value),
+      selectedIndex: 0,
+    }));
   },
 
   setShowShortcuts: (value: boolean) => set({ showShortcuts: value }),
@@ -200,9 +212,7 @@ export const useStore = create<AppState>((set, get) => ({
 
   searchSessions: async (query: string) => {
     set({ isLoading: true });
-    const sessions = await invoke<SessionSummary[]>("search_sessions", {
-      query,
-    });
-    set({ sessions, isLoading: false, selectedIndex: 0 });
+    const raw = await invoke<SessionSummary[]>("search_sessions", { query });
+    set({ sessions: sortSessions(raw, get().pinRenamed), isLoading: false, selectedIndex: 0 });
   },
 }));

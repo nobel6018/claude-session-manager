@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useStore } from "../store";
 import type { SessionSummary } from "../types";
 
@@ -112,13 +112,8 @@ export function SessionList({ width, panelRef }: { width: number; panelRef?: Rea
   }, [panelRef]);
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
 
-  const sortedSessions = useMemo(() => {
-    if (!pinRenamed) return sessions;
-    return [...sessions].sort((a, b) => {
-      if (a.isRenamed !== b.isRenamed) return a.isRenamed ? -1 : 1;
-      return 0;
-    });
-  }, [sessions, pinRenamed]);
+  // 정렬은 store에서 처리됨 — sessions가 항상 올바른 순서
+  const sortedSessions = sessions;
 
   const handleContextMenu = useCallback((e: React.MouseEvent, session: SessionSummary) => {
     e.preventDefault();
