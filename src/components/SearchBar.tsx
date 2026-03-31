@@ -2,8 +2,9 @@ import { useRef, useEffect } from "react";
 import { useStore } from "../store";
 import { ThemeSelector } from "./ThemeSelector";
 
+
 export function SearchBar() {
-  const { searchQuery, setSearchQuery, searchFocused, setSearchFocused } =
+  const { searchQuery, setSearchQuery, searchFocused, setSearchFocused, setShowShortcuts } =
     useStore();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -60,16 +61,17 @@ export function SearchBar() {
         )}
       </div>
 
-      <div className="ml-5 hidden items-center gap-2.5 text-[11px] text-text-muted lg:flex">
-        <div className="flex items-center gap-1.5">
-          <kbd className="rounded-md border border-border/60 bg-bg-tertiary px-2 py-1 font-mono text-[10px]">j/k</kbd>
-          <span>navigate</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <kbd className="rounded-md border border-border/60 bg-bg-tertiary px-2 py-1 font-mono text-[10px]">⌘↩</kbd>
-          <span>resume</span>
-        </div>
-      </div>
+      <button
+        className="ml-4 flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
+        onClick={() => setShowShortcuts(true)}
+        title="단축키 목록 (⌘/)"
+      >
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <rect x="2" y="7" width="20" height="12" rx="2" strokeWidth={2} />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12h.01M12 12h.01M17 12h.01M7 16h10" />
+        </svg>
+        <kbd className="hidden font-mono text-[10px] lg:block">⌘/</kbd>
+      </button>
       <ThemeSelector />
     </div>
   );

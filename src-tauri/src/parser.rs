@@ -134,7 +134,7 @@ pub fn parse_session_summary(path: &Path) -> Option<SessionSummaryRaw> {
 
     Some(SessionSummaryRaw {
         title,
-        session_name,
+        is_renamed: session_name.is_some(),
         cwd: cwd.unwrap_or_default(),
         started_at: started_at.unwrap_or(0),
         message_count,
@@ -338,7 +338,7 @@ fn truncate(s: &str, max_len: usize) -> String {
 
 pub struct SessionSummaryRaw {
     pub title: String,
-    pub session_name: Option<String>,
+    pub is_renamed: bool,
     pub cwd: String,
     pub started_at: i64,
     pub message_count: usize,

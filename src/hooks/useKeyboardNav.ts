@@ -12,10 +12,19 @@ export function useKeyboardNav() {
     setSearchQuery,
     refresh,
     deleteSession,
+    showShortcuts,
+    setShowShortcuts,
   } = useStore();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
+      // Cmd+/: Toggle shortcuts modal
+      if ((e.metaKey || e.ctrlKey) && e.key === "/") {
+        e.preventDefault();
+        setShowShortcuts(!showShortcuts);
+        return;
+      }
+
       // Cmd+K: Focus search
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
@@ -40,8 +49,12 @@ export function useKeyboardNav() {
         return;
       }
 
-      // Escape: Clear search / blur
+      // Escape: Close shortcuts modal, or clear search
       if (e.key === "Escape") {
+        if (showShortcuts) {
+          setShowShortcuts(false);
+          return;
+        }
         if (searchFocused) {
           setSearchFocused(false);
           setSearchQuery("");
@@ -101,5 +114,7 @@ export function useKeyboardNav() {
     setSearchQuery,
     refresh,
     deleteSession,
+    showShortcuts,
+    setShowShortcuts,
   ]);
 }

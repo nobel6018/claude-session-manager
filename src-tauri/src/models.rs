@@ -22,6 +22,7 @@ pub struct SessionSummary {
     pub human_message_count: usize,
     pub tool_use_count: usize,
     pub is_bookmarked: bool,
+    pub is_renamed: bool,
     pub tags: Vec<String>,
 }
 

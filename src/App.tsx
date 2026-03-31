@@ -5,6 +5,7 @@ import { SessionList } from "./components/SessionList";
 import { PreviewPanel } from "./components/PreviewPanel";
 import { SearchBar } from "./components/SearchBar";
 import { UpdateBanner } from "./components/UpdateBanner";
+import { ShortcutsModal } from "./components/ShortcutsModal";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { applyTheme } from "./themes";
 
@@ -28,6 +29,7 @@ function App() {
         <SessionList />
         <PreviewPanel />
       </div>
+      <ShortcutsModal />
     </div>
   );
 }

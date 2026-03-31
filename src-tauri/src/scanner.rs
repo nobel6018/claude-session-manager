@@ -118,6 +118,7 @@ pub fn scan_sessions(
                         human_message_count: raw.human_message_count,
                         tool_use_count: raw.tool_use_count,
                         is_bookmarked,
+                        is_renamed: raw.is_renamed,
                         tags: session_tags,
                     });
                 }

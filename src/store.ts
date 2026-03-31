@@ -20,6 +20,8 @@ interface AppState {
   isLoading: boolean;
   tagInput: string;
   theme: Theme;
+  pinRenamed: boolean;
+  showShortcuts: boolean;
 
   // Actions
   loadProjects: () => Promise<void>;
@@ -38,6 +40,8 @@ interface AppState {
   setTagInput: (input: string) => void;
   searchSessions: (query: string) => Promise<void>;
   setTheme: (themeId: string) => void;
+  setPinRenamed: (value: boolean) => void;
+  setShowShortcuts: (value: boolean) => void;
   refresh: () => Promise<void>;
   deleteSession: (sessionId: string, projectId: string) => Promise<void>;
 }
@@ -58,6 +62,8 @@ export const useStore = create<AppState>((set, get) => ({
     const savedId = localStorage.getItem("theme") ?? defaultThemeId;
     return themes.find((t) => t.id === savedId) ?? themes[0];
   })(),
+  pinRenamed: localStorage.getItem("pinRenamed") === "true",
+  showShortcuts: false,
 
   loadProjects: async () => {
     const projects = await invoke<Project[]>("get_projects");
@@ -133,6 +139,13 @@ export const useStore = create<AppState>((set, get) => ({
     applyTheme(theme);
     set({ theme });
   },
+
+  setPinRenamed: (value: boolean) => {
+    localStorage.setItem("pinRenamed", String(value));
+    set({ pinRenamed: value });
+  },
+
+  setShowShortcuts: (value: boolean) => set({ showShortcuts: value }),
 
   moveSelection: (delta: number) => {
     const { sessions, selectedIndex } = get();

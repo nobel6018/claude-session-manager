@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import { useStore } from "../store";
 import type { SessionSummary } from "../types";
 
@@ -100,9 +100,19 @@ export function SessionList() {
     setSelectedIndex,
     toggleBookmark,
     isLoading,
+    pinRenamed,
+    setPinRenamed,
   } = useStore();
   const listRef = useRef<HTMLDivElement>(null);
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
+
+  const sortedSessions = useMemo(() => {
+    if (!pinRenamed) return sessions;
+    return [...sessions].sort((a, b) => {
+      if (a.isRenamed !== b.isRenamed) return a.isRenamed ? -1 : 1;
+      return 0;
+    });
+  }, [sessions, pinRenamed]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent, session: SessionSummary) => {
     e.preventDefault();
@@ -147,13 +157,37 @@ export function SessionList() {
     );
   }
 
+  const renamedCount = sessions.filter((s) => s.isRenamed).length;
+
   return (
     <>
       <div
         ref={listRef}
         className="flex w-[360px] flex-col overflow-y-auto border-r border-divider bg-bg-primary"
       >
-        {sessions.map((session, index) => (
+        {/* Renamed-first toggle */}
+        {renamedCount > 0 && (
+          <div className="flex items-center justify-between border-b border-divider px-4 py-2">
+            <span className="text-[11px] text-text-muted">
+              {renamedCount}개 이름 지정됨
+            </span>
+            <button
+              onClick={() => setPinRenamed(!pinRenamed)}
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                pinRenamed
+                  ? "bg-accent/15 text-accent"
+                  : "text-text-muted hover:text-text-secondary"
+              }`}
+              title="이름 지정된 세션을 상단에 표시"
+            >
+              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              </svg>
+              이름순 상단
+            </button>
+          </div>
+        )}
+        {sortedSessions.map((session, index) => (
           <SessionCard
             key={session.sessionId}
             session={session}
@@ -212,13 +246,24 @@ function SessionCard({
     >
       {/* Title row */}
       <div className="flex items-start justify-between gap-3">
-        <h3
-          className={`flex-1 truncate text-[14px] font-medium leading-snug ${
-            isSelected ? "text-text-primary" : "text-text-primary"
-          }`}
-        >
-          {session.title}
-        </h3>
+        <div className="flex min-w-0 flex-1 items-center gap-1.5">
+          {session.isRenamed && (
+            <svg
+              className="h-3 w-3 shrink-0 text-accent/60"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-label="이름이 지정된 세션"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+          )}
+          <h3
+            className="flex-1 truncate text-[14px] font-medium leading-snug text-text-primary"
+          >
+            {session.title}
+          </h3>
+        </div>
         <button
           className={`mt-0.5 shrink-0 transition-all duration-100 ${
             session.isBookmarked

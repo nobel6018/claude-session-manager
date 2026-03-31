@@ -16,6 +16,7 @@ export interface SessionSummary {
   humanMessageCount: number;
   toolUseCount: number;
   isBookmarked: boolean;
+  isRenamed: boolean;
   tags: string[];
 }
 
