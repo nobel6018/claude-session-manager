@@ -59,6 +59,16 @@ export function ProjectSidebar({ width }: { width: number }) {
             </button>
           </div>
 
+          {/* Frontend build info */}
+          <div
+            className="shrink-0 border-b border-divider px-5 pb-2.5"
+            title={`빌드 시각: ${new Date(__BUILD_TIME__).toLocaleString("ko-KR")}`}
+          >
+            <span className="font-mono text-[10px] text-text-muted/50">
+              fe: {__GIT_HASH__}
+            </span>
+          </div>
+
           <div className="flex-1 overflow-y-auto px-3 pb-4">
             {/* All Sessions */}
             <button
