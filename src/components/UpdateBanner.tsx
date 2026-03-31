@@ -32,7 +32,7 @@ export function UpdateBanner() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <span className="text-[12px] text-text-muted">
-            앱 최신 <span className="font-mono text-text-secondary">(v{currentBackendVersion})</span>
+            앱 최신 버전입니다 <span className="font-mono text-text-secondary">(v{currentBackendVersion})</span>
           </span>
         </div>
 
@@ -46,7 +46,7 @@ export function UpdateBanner() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
               <span className="text-[12px] text-text-muted">
-                UI 최신 <span className="font-mono text-text-secondary">(fe:{frontendStatus.current.slice(0, 7)})</span>
+                UI 최신 버전입니다 <span className="font-mono text-text-secondary">(fe:{frontendStatus.current.slice(0, 7)})</span>
               </span>
             </div>
           ) : (
