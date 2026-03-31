@@ -1,11 +1,13 @@
 import { useRef, useEffect } from "react";
 import { useStore } from "../store";
 import { ThemeSelector } from "./ThemeSelector";
+import { useFlash } from "../hooks/useFlash";
 
 
 export function SearchBar() {
-  const { searchQuery, setSearchQuery, searchFocused, setSearchFocused, setShowShortcuts } =
+  const { searchQuery, setSearchQuery, searchFocused, setSearchFocused, setShowShortcuts, showShortcuts } =
     useStore();
+  const flash = useFlash(showShortcuts);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -62,7 +64,7 @@ export function SearchBar() {
       </div>
 
       <button
-        className="ml-4 flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
+        className={`ml-4 flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 transition-colors ${flash ? "bg-accent/15 text-accent" : "text-text-muted hover:bg-bg-hover hover:text-text-secondary"}`}
         onClick={() => setShowShortcuts(true)}
         title="단축키 목록 (⌘/)"
       >

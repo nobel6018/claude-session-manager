@@ -1,5 +1,6 @@
 import { useStore } from "../store";
 import type { Project } from "../types";
+import { useFlash } from "../hooks/useFlash";
 
 function formatProjectName(name: string): { primary: string; secondary: string } {
   if (name === "Home") {
@@ -20,6 +21,7 @@ function formatProjectName(name: string): { primary: string; secondary: string }
 
 export function ProjectSidebar({ width }: { width: number }) {
   const { projects, selectedProjectId, selectProject, sidebarCollapsed, toggleSidebar } = useStore();
+  const flash = useFlash(sidebarCollapsed);
 
   const totalSessions = projects.reduce((sum, p) => sum + p.sessionCount, 0);
 
@@ -33,7 +35,7 @@ export function ProjectSidebar({ width }: { width: number }) {
       {sidebarCollapsed ? (
         /* Collapsed strip — click to expand */
         <button
-          className="flex flex-1 w-full items-start justify-center pt-5 text-text-muted hover:text-accent transition-colors"
+          className={`flex flex-1 w-full items-start justify-center pt-5 transition-colors ${flash ? "text-accent" : "text-text-muted hover:text-accent"}`}
           onClick={toggleSidebar}
           title="사이드바 펼치기 (⌘.)"
         >
@@ -49,7 +51,7 @@ export function ProjectSidebar({ width }: { width: number }) {
               Projects
             </h2>
             <button
-              className="text-text-muted hover:text-accent transition-colors"
+              className={`transition-colors ${flash ? "text-accent" : "text-text-muted hover:text-accent"}`}
               onClick={toggleSidebar}
               title="사이드바 접기 (⌘.)"
             >
