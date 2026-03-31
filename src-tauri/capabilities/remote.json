@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "remote-vercel",
+  "description": "Allow Vercel CDN frontend to use Tauri IPC commands",
+  "remote": {
+    "urls": ["https://claude-session-manager.vercel.app/*"]
+  },
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "opener:default"
+  ]
+}
