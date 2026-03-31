@@ -131,12 +131,23 @@ export const useStore = create<AppState>((set, get) => ({
 
   deleteSession: async (sessionId: string, projectId: string) => {
     await invoke("delete_session", { sessionId, projectId });
-    const { selectedSessionId, selectedProjectId } = get();
-    if (selectedSessionId === sessionId) {
-      set({ selectedSessionId: null, sessionDetail: null, selectedIndex: 0 });
-    }
-    await get().loadSessions(selectedProjectId);
-    await get().loadProjects();
+
+    // 전체 리로드 대신 로컬 state에서 해당 세션만 제거 → 깜빡임 없음
+    const { selectedSessionId, sessions, projects } = get();
+    const updatedSessions = sessions.filter(s => s.sessionId !== sessionId);
+    const updatedProjects = projects.map(p =>
+      p.id === projectId && p.sessionCount > 0
+        ? { ...p, sessionCount: p.sessionCount - 1 }
+        : p
+    );
+
+    set({
+      sessions: updatedSessions,
+      projects: updatedProjects,
+      ...(selectedSessionId === sessionId
+        ? { selectedSessionId: null, sessionDetail: null, selectedIndex: 0 }
+        : {}),
+    });
   },
 
   refresh: () => {
