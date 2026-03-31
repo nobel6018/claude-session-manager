@@ -1,9 +1,17 @@
 import { useUpdateChecker } from "../hooks/useUpdateChecker";
 
 export function UpdateBanner() {
-  const { update, checking, noUpdate, currentVersion, openReleasePage, dismiss } = useUpdateChecker();
+  const {
+    backendUpdate,
+    frontendStatus,
+    checking,
+    showResult,
+    currentBackendVersion,
+    openReleasePage,
+    dismissBackend,
+  } = useUpdateChecker();
 
-  // 수동 확인 중
+  // 확인 중
   if (checking) {
     return (
       <div className="flex items-center gap-2 border-b border-divider bg-bg-secondary px-5 py-2">
@@ -13,54 +21,89 @@ export function UpdateBanner() {
     );
   }
 
-  // 최신 버전 (수동 확인 후 3초 표시)
-  if (noUpdate) {
+  // 수동 확인 결과 (5초 표시) — 백엔드 업데이트 없을 때만
+  if (showResult && !backendUpdate) {
+    const feOk = frontendStatus?.isLatest ?? true;
     return (
-      <div className="flex items-center gap-2 border-b border-divider bg-bg-secondary px-5 py-2">
-        <svg className="h-3.5 w-3.5 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
-        <span className="text-sm text-text-muted">앱 최신 버전입니다 {currentVersion ? `(v${currentVersion})` : ""}</span>
+      <div className="flex items-center gap-4 border-b border-divider bg-bg-secondary px-5 py-2">
+        {/* 백엔드 */}
+        <div className="flex items-center gap-1.5">
+          <svg className="h-3.5 w-3.5 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+          <span className="text-[12px] text-text-muted">
+            앱 최신 <span className="font-mono text-text-secondary">(v{currentBackendVersion})</span>
+          </span>
+        </div>
+
+        <span className="text-text-muted/30">·</span>
+
+        {/* 프론트엔드 */}
+        {frontendStatus ? (
+          feOk ? (
+            <div className="flex items-center gap-1.5">
+              <svg className="h-3.5 w-3.5 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="text-[12px] text-text-muted">
+                UI 최신 <span className="font-mono text-text-secondary">(fe:{frontendStatus.current.slice(0, 7)})</span>
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <svg className="h-3.5 w-3.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="text-[12px] text-text-muted">
+                UI 업데이트 있음{" "}
+                <span className="font-mono text-text-muted/60">
+                  {frontendStatus.current.slice(0, 7)} → {frontendStatus.latest.slice(0, 7)}
+                </span>
+              </span>
+              <kbd className="rounded border border-border/60 bg-bg-tertiary px-1.5 py-0.5 font-mono text-[10px] text-accent">
+                ⌘R
+              </kbd>
+            </div>
+          )
+        ) : null}
       </div>
     );
   }
 
-  // 새 버전 있음
-  if (!update) return null;
-
-  return (
-    <div className="flex items-center gap-3 border-b border-yellow/20 bg-yellow/8 px-5 py-2.5">
-      <svg
-        className="h-4 w-4 shrink-0 text-yellow"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
-        />
-      </svg>
-      <span className="text-sm text-text-primary">
-        앱 업데이트 <span className="font-semibold text-yellow">v{update.version}</span> — UI는 자동 반영, 앱 바이너리 업데이트 필요
-      </span>
-      <button
-        className="rounded-md bg-yellow/15 px-3 py-1 text-xs font-medium text-yellow transition-colors hover:bg-yellow/25"
-        onClick={() => openReleasePage(update.releaseUrl)}
-      >
-        앱 다운로드
-      </button>
-      <button
-        className="ml-auto text-text-muted transition-colors hover:text-text-primary"
-        onClick={dismiss}
-        title="닫기"
-      >
-        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  // 백엔드 신규 버전
+  if (backendUpdate) {
+    return (
+      <div className="flex items-center gap-3 border-b border-yellow/20 bg-yellow/8 px-5 py-2.5">
+        <svg className="h-4 w-4 shrink-0 text-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
         </svg>
-      </button>
-    </div>
-  );
+        <span className="text-sm text-text-primary">
+          새 앱 버전{" "}
+          <span className="font-semibold text-yellow">v{backendUpdate.version}</span>
+          {frontendStatus && !frontendStatus.isLatest && (
+            <span className="ml-2 text-[11px] text-text-muted">
+              · UI 업데이트도 있음 (⌘R)
+            </span>
+          )}
+        </span>
+        <button
+          className="rounded-md bg-yellow/15 px-3 py-1 text-xs font-medium text-yellow transition-colors hover:bg-yellow/25"
+          onClick={() => openReleasePage(backendUpdate.releaseUrl)}
+        >
+          앱 다운로드
+        </button>
+        <button
+          className="ml-auto text-text-muted transition-colors hover:text-text-primary"
+          onClick={dismissBackend}
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
+
+  return null;
 }
