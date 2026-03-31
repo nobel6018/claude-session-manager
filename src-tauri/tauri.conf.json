@@ -6,8 +6,8 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist"
+    "beforeBuildCommand": "",
+    "frontendDist": "https://nobel6018.github.io/claude-session-manager"
   },
   "app": {
     "windows": [
@@ -20,7 +20,15 @@
       }
     ],
     "security": {
-      "csp": null
+      "csp": null,
+      "dangerousRemoteDomainIpcAccess": [
+        {
+          "domain": "nobel6018.github.io",
+          "windows": ["main"],
+          "plugins": [],
+          "enableTauriAPI": true
+        }
+      ]
     }
   },
   "bundle": {
