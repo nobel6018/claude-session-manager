@@ -22,6 +22,23 @@ Built with **Tauri v2** (Rust backend) + **React** + **TypeScript** + **Tailwind
 
 ## Installation
 
+### Install via DMG (recommended)
+
+Download the latest DMG from [Releases](https://github.com/nobel6018/claude-session-manager/releases).
+
+> **⚠️ macOS Gatekeeper warning**
+>
+> Since the app is not signed with an Apple Developer certificate, macOS may show *"damaged and can't be opened"* on first launch.
+> Use one of the following methods to resolve this:
+>
+> **Option 1 — Remove quarantine via Terminal:**
+> ```bash
+> xattr -cr /Applications/Claude\ Session\ Manager.app
+> ```
+>
+> **Option 2 — Allow in System Settings:**
+> `System Settings` → `Privacy & Security` → scroll down to the "unidentified developer" notice → click **"Open Anyway"**
+
 ### Prerequisites
 
 - [Rust](https://rustup.rs/) (1.70+)

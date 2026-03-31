@@ -4,8 +4,8 @@
       <rect x="0" y="0" width="1280" height="800" rx="12"/>
     </clipPath>
     <linearGradient id="fadeGradient" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#263238" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#263238" stop-opacity="1"/>
+      <stop offset="0%" stop-color="#1f2430" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#1f2430" stop-opacity="1"/>
     </linearGradient>
     <style>
       text { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
@@ -13,199 +13,201 @@
     </style>
   </defs>
 
-  <!-- Window background -->
-  <rect x="0" y="0" width="1280" height="800" rx="12" fill="#263238" clip-path="url(#window-clip)"/>
+  <!-- Window background (Ayu Mirage) -->
+  <rect x="0" y="0" width="1280" height="800" rx="12" fill="#1f2430" clip-path="url(#window-clip)"/>
 
   <!-- Title bar -->
-  <rect x="0" y="0" width="1280" height="40" fill="#1a2226" rx="12"/>
-  <rect x="0" y="28" width="1280" height="12" fill="#1a2226"/>
-
-  <!-- Traffic lights -->
+  <rect x="0" y="0" width="1280" height="40" fill="#171b24" rx="12"/>
+  <rect x="0" y="28" width="1280" height="12" fill="#171b24"/>
   <circle cx="20" cy="20" r="6.5" fill="#ff5f57"/>
   <circle cx="40" cy="20" r="6.5" fill="#febc2e"/>
   <circle cx="60" cy="20" r="6.5" fill="#28c840"/>
-
-  <!-- Title -->
-  <text x="640" y="25" text-anchor="middle" fill="#78909C" font-size="13" font-weight="500">Claude Session Manager</text>
+  <text x="640" y="25" text-anchor="middle" fill="#707a8c" font-size="13" font-weight="500">Claude Session Manager</text>
 
   <!-- Search bar -->
-  <rect x="0" y="40" width="1280" height="52" fill="#2E3C43"/>
-  <rect x="20" y="52" width="1020" height="28" rx="8" fill="#32424A"/>
-  <circle cx="40" cy="66" r="7" fill="none" stroke="#607D8B" stroke-width="1.5"/>
-  <line x1="44.5" y1="70.5" x2="48" y2="74" stroke="#607D8B" stroke-width="1.5" stroke-linecap="round"/>
-  <text x="58" y="71" fill="#607D8B" font-size="13">Search sessions...</text>
-  <rect x="1010" y="56" width="28" height="16" rx="4" fill="#263238" stroke="#37474F" stroke-width="1"/>
-  <text x="1024" y="68" text-anchor="middle" fill="#607D8B" font-size="10" class="mono">⌘K</text>
-  <text x="1065" y="70" fill="#607D8B" font-size="11" class="mono">j/k</text>
-  <text x="1093" y="70" fill="#607D8B" font-size="11"> navigate</text>
-  <text x="1167" y="70" fill="#607D8B" font-size="11" class="mono">⌘↩</text>
-  <text x="1190" y="70" fill="#607D8B" font-size="11"> resume</text>
-  <circle cx="1255" cy="66" r="7" fill="none" stroke="#607D8B" stroke-width="1.5"/>
-  <circle cx="1255" cy="66" r="3.5" fill="#607D8B"/>
+  <rect x="0" y="40" width="1280" height="52" fill="#1a1e29"/>
+  <rect x="20" y="52" width="958" height="28" rx="8" fill="#242936"/>
+  <circle cx="40" cy="66" r="7" fill="none" stroke="#707a8c" stroke-width="1.5"/>
+  <line x1="44.5" y1="70.5" x2="48" y2="74" stroke="#707a8c" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="58" y="71" fill="#707a8c" font-size="13">Search sessions...</text>
+  <rect x="948" y="56" width="28" height="16" rx="4" fill="#1f2430" stroke="#33415e" stroke-width="1"/>
+  <text x="962" y="68" text-anchor="middle" fill="#707a8c" font-size="10" class="mono">⌘K</text>
+
+  <!-- Keyboard shortcuts button (⌘/) -->
+  <rect x="990" y="52" width="46" height="28" rx="7" fill="#242936" stroke="#33415e" stroke-width="1"/>
+  <rect x="998" y="59" width="16" height="10" rx="1.5" fill="none" stroke="#8c96a8" stroke-width="1.2"/>
+  <line x1="1002" y1="65" x2="1002.5" y2="65" stroke="#8c96a8" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="1006" y1="65" x2="1006.5" y2="65" stroke="#8c96a8" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="1010" y1="65" x2="1010.5" y2="65" stroke="#8c96a8" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="1002" y1="68" x2="1012" y2="68" stroke="#8c96a8" stroke-width="1.2" stroke-linecap="round"/>
+  <text x="1018" y="70" fill="#8c96a8" font-size="10" class="mono">⌘/</text>
+
+  <!-- Theme picker circle -->
+  <circle cx="1255" cy="66" r="10" fill="#242936" stroke="#33415e" stroke-width="1"/>
+  <circle cx="1255" cy="66" r="6" fill="none" stroke="#ffcc66" stroke-width="1.5"/>
+  <circle cx="1255" cy="66" r="2.5" fill="#ffcc66"/>
 
   <!-- ===== LEFT SIDEBAR ===== -->
-  <rect x="0" y="92" width="208" height="708" fill="#222D32"/>
-  <text x="16" y="116" fill="#607D8B" font-size="10" font-weight="600" letter-spacing="1.5">PROJECTS</text>
+  <rect x="0" y="92" width="208" height="708" fill="#171b24"/>
+  <text x="16" y="116" fill="#707a8c" font-size="10" font-weight="600" letter-spacing="1.5">PROJECTS</text>
 
   <!-- All Sessions (active) -->
-  <rect x="8" y="124" width="192" height="34" rx="7" fill="#00968812"/>
-  <text x="20" y="145" fill="#009688" font-size="13" font-weight="500">All Sessions</text>
-  <rect x="167" y="130" width="30" height="18" rx="9" fill="#32424A"/>
-  <text x="182" y="143" text-anchor="middle" fill="#607D8B" font-size="11" class="mono">142</text>
+  <rect x="8" y="124" width="192" height="34" rx="7" fill="#ffcc6612"/>
+  <text x="20" y="145" fill="#ffcc66" font-size="13" font-weight="500">All Sessions</text>
+  <rect x="167" y="130" width="30" height="18" rx="9" fill="#242936"/>
+  <text x="182" y="143" text-anchor="middle" fill="#8c96a8" font-size="11" class="mono">142</text>
 
-  <!-- Project items (generic names) -->
-  <g fill="#90A4AE" font-size="13">
+  <g fill="#8c96a8" font-size="13">
     <text x="20" y="183">Home</text>
-    <text x="174" y="183" fill="#607D8B" font-size="11" class="mono">48</text>
-
+    <text x="174" y="183" fill="#707a8c" font-size="11" class="mono">48</text>
     <text x="20" y="213">backend-api</text>
-    <text x="20" y="227" fill="#607D8B" font-size="10">~/projects/api</text>
-    <text x="174" y="213" fill="#607D8B" font-size="11" class="mono">24</text>
-
+    <text x="20" y="227" fill="#707a8c" font-size="10">~/projects/api</text>
+    <text x="174" y="213" fill="#707a8c" font-size="11" class="mono">24</text>
     <text x="20" y="254">frontend</text>
-    <text x="20" y="268" fill="#607D8B" font-size="10">~/projects/web</text>
-    <text x="174" y="254" fill="#607D8B" font-size="11" class="mono">18</text>
-
+    <text x="20" y="268" fill="#707a8c" font-size="10">~/projects/web</text>
+    <text x="174" y="254" fill="#707a8c" font-size="11" class="mono">18</text>
     <text x="20" y="295">infra</text>
-    <text x="20" y="309" fill="#607D8B" font-size="10">~/projects/infra</text>
-    <text x="174" y="295" fill="#607D8B" font-size="11" class="mono">15</text>
-
+    <text x="20" y="309" fill="#707a8c" font-size="10">~/projects/infra</text>
+    <text x="174" y="295" fill="#707a8c" font-size="11" class="mono">15</text>
     <text x="20" y="336">data-pipeline</text>
-    <text x="20" y="350" fill="#607D8B" font-size="10">~/projects/pipeline</text>
-    <text x="174" y="336" fill="#607D8B" font-size="11" class="mono">12</text>
-
+    <text x="20" y="350" fill="#707a8c" font-size="10">~/projects/pipeline</text>
+    <text x="174" y="336" fill="#707a8c" font-size="11" class="mono">12</text>
     <text x="20" y="377">mobile-app</text>
-    <text x="20" y="391" fill="#607D8B" font-size="10">~/projects/mobile</text>
-    <text x="174" y="377" fill="#607D8B" font-size="11" class="mono">11</text>
-
+    <text x="20" y="391" fill="#707a8c" font-size="10">~/projects/mobile</text>
+    <text x="174" y="377" fill="#707a8c" font-size="11" class="mono">11</text>
     <text x="20" y="418">dashboard</text>
-    <text x="20" y="432" fill="#607D8B" font-size="10">~/projects/dashboard</text>
-    <text x="174" y="418" fill="#607D8B" font-size="11" class="mono">8</text>
-
+    <text x="20" y="432" fill="#707a8c" font-size="10">~/projects/dashboard</text>
+    <text x="174" y="418" fill="#707a8c" font-size="11" class="mono">8</text>
     <text x="20" y="459">cli-tools</text>
-    <text x="20" y="473" fill="#607D8B" font-size="10">~/projects/cli</text>
-    <text x="174" y="459" fill="#607D8B" font-size="11" class="mono">6</text>
+    <text x="20" y="473" fill="#707a8c" font-size="10">~/projects/cli</text>
+    <text x="174" y="459" fill="#707a8c" font-size="11" class="mono">6</text>
   </g>
 
   <!-- ===== SESSION LIST ===== -->
-  <rect x="208" y="92" width="340" height="708" fill="#263238"/>
+  <rect x="208" y="92" width="340" height="708" fill="#1f2430"/>
 
-  <!-- Card 1 (active, bookmarked) -->
-  <rect x="208" y="92" width="340" height="106" fill="#37474F"/>
-  <rect x="208" y="92" width="3" height="106" fill="#009688"/>
-  <text x="228" y="118" fill="#B0BEC5" font-size="13" font-weight="500">feat: add Redis caching layer</text>
-  <text x="228" y="136" fill="#78909C" font-size="11">backend-api</text>
-  <text x="228" y="155" fill="#78909C" font-size="11">12m ago  ·  28 msgs  · </text>
-  <text x="342" y="155" fill="#89ddff" font-size="11" font-weight="500">11 tools</text>
-  <text x="523" y="118" fill="#ffcb6b" font-size="14">★</text>
+  <!-- "이름순 상단" toggle bar (active) -->
+  <rect x="208" y="92" width="340" height="26" fill="#1a1e29"/>
+  <line x1="208" y1="118" x2="548" y2="118" stroke="#242936" stroke-width="1"/>
+  <text x="220" y="109" fill="#707a8c" font-size="11">3개 이름 지정됨</text>
+  <rect x="454" y="96" width="88" height="16" rx="8" fill="#ffcc6615"/>
+  <text x="498" y="108" text-anchor="middle" fill="#ffcc66" font-size="10" font-weight="500">▲ 이름순 상단</text>
 
-  <!-- Card 2 -->
-  <line x1="208" y1="198" x2="548" y2="198" stroke="#2E3C43" stroke-width="1"/>
-  <rect x="208" y="198" width="3" height="100" fill="transparent"/>
-  <text x="228" y="222" fill="#B0BEC5" font-size="13" font-weight="500">how does JWT refresh token work?</text>
-  <text x="228" y="240" fill="#78909C" font-size="11">backend-api</text>
-  <text x="228" y="259" fill="#78909C" font-size="11">1h ago  ·  15 msgs  · </text>
-  <text x="330" y="259" fill="#89ddff" font-size="11" font-weight="500">3 tools</text>
+  <!-- Card 1 — active, renamed, bookmarked -->
+  <rect x="208" y="118" width="340" height="92" fill="#33415e"/>
+  <rect x="208" y="118" width="3" height="92" fill="#ffcc66"/>
+  <!-- pencil icon -->
+  <g transform="translate(222,132)" fill="none" stroke="#ffcc66" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.75">
+    <path d="M6.5 1.5 l2.5 2.5 -5.8 5.8 -3 0.3 0.3-3 z"/>
+    <line x1="5.2" y1="2.8" x2="7.7" y2="5.3"/>
+  </g>
+  <text x="238" y="150" fill="#cbccc6" font-size="13" font-weight="500">feat: add Redis caching layer</text>
+  <text x="222" y="168" fill="#8c96a8" font-size="11">backend-api</text>
+  <text x="222" y="188" fill="#707a8c" font-size="11">12m ago  ·  28 msgs  · </text>
+  <text x="330" y="188" fill="#73d0ff" font-size="11" font-weight="500">11 tools</text>
+  <text x="517" y="150" fill="#ffa759" font-size="14">★</text>
+
+  <!-- Card 2 — renamed -->
+  <line x1="208" y1="210" x2="548" y2="210" stroke="#242936" stroke-width="1"/>
+  <rect x="208" y="210" width="3" height="86" fill="transparent"/>
+  <g transform="translate(222,224)" fill="none" stroke="#ffcc66" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45">
+    <path d="M6.5 1.5 l2.5 2.5 -5.8 5.8 -3 0.3 0.3-3 z"/>
+    <line x1="5.2" y1="2.8" x2="7.7" y2="5.3"/>
+  </g>
+  <text x="238" y="242" fill="#cbccc6" font-size="13" font-weight="500">refactor auth middleware</text>
+  <text x="222" y="260" fill="#8c96a8" font-size="11">backend-api</text>
+  <text x="222" y="278" fill="#707a8c" font-size="11">1h ago  ·  19 msgs  · </text>
+  <text x="320" y="278" fill="#73d0ff" font-size="11" font-weight="500">7 tools</text>
 
   <!-- Card 3 -->
-  <line x1="208" y1="300" x2="548" y2="300" stroke="#2E3C43" stroke-width="1"/>
-  <text x="228" y="324" fill="#B0BEC5" font-size="13" font-weight="500">optimize database query performance</text>
-  <text x="228" y="342" fill="#78909C" font-size="11">data-pipeline</text>
-  <text x="228" y="361" fill="#78909C" font-size="11">2h ago  ·  42 msgs  · </text>
-  <text x="342" y="361" fill="#89ddff" font-size="11" font-weight="500">18 tools</text>
+  <line x1="208" y1="296" x2="548" y2="296" stroke="#242936" stroke-width="1"/>
+  <text x="222" y="318" fill="#cbccc6" font-size="13" font-weight="500">how does JWT refresh token work?</text>
+  <text x="222" y="336" fill="#8c96a8" font-size="11">backend-api</text>
+  <text x="222" y="354" fill="#707a8c" font-size="11">2h ago  ·  15 msgs  · </text>
+  <text x="320" y="354" fill="#73d0ff" font-size="11" font-weight="500">3 tools</text>
 
   <!-- Card 4 -->
-  <line x1="208" y1="400" x2="548" y2="400" stroke="#2E3C43" stroke-width="1"/>
-  <text x="228" y="424" fill="#B0BEC5" font-size="13" font-weight="500">refactor auth middleware</text>
-  <text x="228" y="442" fill="#78909C" font-size="11">backend-api</text>
-  <text x="228" y="461" fill="#78909C" font-size="11">3h ago  ·  19 msgs  · </text>
-  <text x="330" y="461" fill="#89ddff" font-size="11" font-weight="500">7 tools</text>
+  <line x1="208" y1="372" x2="548" y2="372" stroke="#242936" stroke-width="1"/>
+  <text x="222" y="394" fill="#cbccc6" font-size="13" font-weight="500">optimize database query performance</text>
+  <text x="222" y="412" fill="#8c96a8" font-size="11">data-pipeline</text>
+  <text x="222" y="430" fill="#707a8c" font-size="11">3h ago  ·  42 msgs  · </text>
+  <text x="320" y="430" fill="#73d0ff" font-size="11" font-weight="500">18 tools</text>
 
   <!-- Card 5 -->
-  <line x1="208" y1="500" x2="548" y2="500" stroke="#2E3C43" stroke-width="1"/>
-  <text x="228" y="524" fill="#B0BEC5" font-size="13" font-weight="500">setup CI/CD pipeline with GitHub Actions</text>
-  <text x="228" y="542" fill="#78909C" font-size="11">infra</text>
-  <text x="228" y="561" fill="#78909C" font-size="11">5h ago  ·  33 msgs  · </text>
-  <text x="330" y="561" fill="#89ddff" font-size="11" font-weight="500">14 tools</text>
+  <line x1="208" y1="448" x2="548" y2="448" stroke="#242936" stroke-width="1"/>
+  <text x="222" y="470" fill="#cbccc6" font-size="13" font-weight="500">setup CI/CD pipeline with GitHub Actions</text>
+  <text x="222" y="488" fill="#8c96a8" font-size="11">infra</text>
+  <text x="222" y="506" fill="#707a8c" font-size="11">5h ago  ·  33 msgs  · </text>
+  <text x="320" y="506" fill="#73d0ff" font-size="11" font-weight="500">14 tools</text>
 
   <!-- Card 6 -->
-  <line x1="208" y1="600" x2="548" y2="600" stroke="#2E3C43" stroke-width="1"/>
-  <text x="228" y="624" fill="#B0BEC5" font-size="13" font-weight="500">build responsive navbar component</text>
-  <text x="228" y="642" fill="#78909C" font-size="11">frontend</text>
-  <text x="228" y="661" fill="#78909C" font-size="11">1d ago  ·  11 msgs  · </text>
-  <text x="326" y="661" fill="#89ddff" font-size="11" font-weight="500">5 tools</text>
+  <line x1="208" y1="524" x2="548" y2="524" stroke="#242936" stroke-width="1"/>
+  <text x="222" y="546" fill="#cbccc6" font-size="13" font-weight="500">build responsive navbar component</text>
+  <text x="222" y="564" fill="#8c96a8" font-size="11">frontend</text>
+  <text x="222" y="582" fill="#707a8c" font-size="11">1d ago  ·  11 msgs  · </text>
+  <text x="320" y="582" fill="#73d0ff" font-size="11" font-weight="500">5 tools</text>
 
   <!-- Card 7 -->
-  <line x1="208" y1="700" x2="548" y2="700" stroke="#2E3C43" stroke-width="1"/>
-  <text x="228" y="724" fill="#B0BEC5" font-size="13" font-weight="500">write unit tests for payment service</text>
-  <text x="228" y="742" fill="#78909C" font-size="11">backend-api</text>
-  <text x="228" y="761" fill="#78909C" font-size="11">2d ago  ·  24 msgs  · </text>
-  <text x="326" y="761" fill="#89ddff" font-size="11" font-weight="500">9 tools</text>
+  <line x1="208" y1="600" x2="548" y2="600" stroke="#242936" stroke-width="1"/>
+  <text x="222" y="622" fill="#cbccc6" font-size="13" font-weight="500">write unit tests for payment service</text>
+  <text x="222" y="640" fill="#8c96a8" font-size="11">backend-api</text>
+  <text x="222" y="658" fill="#707a8c" font-size="11">2d ago  ·  24 msgs  · </text>
+  <text x="320" y="658" fill="#73d0ff" font-size="11" font-weight="500">9 tools</text>
 
-  <line x1="548" y1="92" x2="548" y2="800" stroke="#2E3C43" stroke-width="1"/>
+  <line x1="548" y1="92" x2="548" y2="800" stroke="#242936" stroke-width="1"/>
 
   <!-- ===== PREVIEW PANEL ===== -->
-  <rect x="548" y="92" width="732" height="708" fill="#263238"/>
+  <rect x="548" y="92" width="732" height="708" fill="#1f2430"/>
+  <rect x="548" y="92" width="732" height="88" fill="#1a1e29"/>
+  <line x1="548" y1="180" x2="1280" y2="180" stroke="#33415e" stroke-width="1"/>
 
-  <!-- Preview header -->
-  <rect x="548" y="92" width="732" height="88" fill="#2E3C43"/>
-  <line x1="548" y1="180" x2="1280" y2="180" stroke="#37474F" stroke-width="1"/>
+  <text x="572" y="120" fill="#cbccc6" font-size="14" font-weight="500">feat: add Redis caching layer</text>
+  <text x="572" y="140" fill="#8c96a8" font-size="11">backend-api  ·  2024. 1. 15  ·  28 messages</text>
+  <rect x="572" y="148" width="42" height="20" rx="10" fill="#242936" stroke="#33415e" stroke-width="1"/>
+  <text x="593" y="162" text-anchor="middle" fill="#707a8c" font-size="11">+ tag</text>
+  <rect x="620" y="148" width="60" height="20" rx="10" fill="#ffcc6612" stroke="#ffcc6630" stroke-width="1"/>
+  <text x="650" y="162" text-anchor="middle" fill="#ffcc66" font-size="11">caching</text>
+  <rect x="1158" y="103" width="100" height="34" rx="8" fill="none" stroke="#ffcc66" stroke-width="1.5" opacity="0.7"/>
+  <text x="1208" y="124" text-anchor="middle" fill="#ffcc66" font-size="13" font-weight="500">Resume ⌘↩</text>
 
-  <text x="572" y="120" fill="#B0BEC5" font-size="14" font-weight="500">feat: add Redis caching layer</text>
-  <text x="572" y="140" fill="#78909C" font-size="11">backend-api  ·  2024. 1. 15  ·  28 messages</text>
+  <!-- Messages -->
+  <text x="572" y="210" fill="#bae67e" font-size="10" font-weight="600" letter-spacing="1">YOU</text>
+  <rect x="572" y="218" width="690" height="44" rx="10" fill="#242936"/>
+  <text x="592" y="244" fill="#cbccc6" font-size="13">We need to add a Redis caching layer to reduce DB load. Where should I start?</text>
 
-  <rect x="572" y="148" width="42" height="20" rx="10" fill="#32424A" stroke="#37474F" stroke-width="1"/>
-  <text x="593" y="162" text-anchor="middle" fill="#607D8B" font-size="11">+ tag</text>
-  <rect x="620" y="148" width="52" height="20" rx="10" fill="#00968812" stroke="#00968830" stroke-width="1"/>
-  <text x="646" y="162" text-anchor="middle" fill="#009688" font-size="11">caching</text>
+  <text x="572" y="285" fill="#ffcc66" font-size="10" font-weight="600" letter-spacing="1">CLAUDE</text>
+  <rect x="572" y="293" width="690" height="60" rx="10" fill="#1a1e29"/>
+  <text x="592" y="314" fill="#8c96a8" font-size="13">Great approach. I'll look at your current service layer and suggest where</text>
+  <text x="592" y="334" fill="#8c96a8" font-size="13">to add caching with minimal changes to your existing code.</text>
 
-  <rect x="1170" y="103" width="88" height="34" rx="8" fill="none" stroke="#009688" stroke-width="1.5" opacity="0.7"/>
-  <text x="1214" y="124" text-anchor="middle" fill="#009688" font-size="13" font-weight="500">Resume ⌘↩</text>
+  <rect x="572" y="371" width="690" height="40" rx="8" fill="#1a1e29" stroke="#33415e" stroke-width="1" opacity="0.9"/>
+  <circle cx="592" cy="391" r="8" fill="none" stroke="#73d0ff" stroke-width="1.5"/>
+  <circle cx="592" cy="391" r="3" fill="#73d0ff"/>
+  <text x="610" y="388" fill="#73d0ff" font-size="12" font-weight="500">Read</text>
+  <text x="610" y="403" fill="#707a8c" font-size="11" class="mono">src/services/UserService.ts</text>
 
-  <!-- Message 1 - YOU -->
-  <text x="572" y="210" fill="#c3e88d" font-size="10" font-weight="600" letter-spacing="1">YOU</text>
-  <rect x="572" y="218" width="690" height="44" rx="10" fill="#32424A"/>
-  <text x="592" y="244" fill="#B0BEC5" font-size="13">We need to add a Redis caching layer to reduce DB load. Where should I start?</text>
+  <rect x="572" y="419" width="690" height="40" rx="8" fill="#1a1e29" stroke="#33415e" stroke-width="1" opacity="0.9"/>
+  <circle cx="592" cy="439" r="8" fill="none" stroke="#73d0ff" stroke-width="1.5"/>
+  <circle cx="592" cy="439" r="3" fill="#73d0ff"/>
+  <text x="610" y="436" fill="#73d0ff" font-size="12" font-weight="500">Grep</text>
+  <text x="610" y="451" fill="#707a8c" font-size="11" class="mono">{"pattern": "findById|findAll", "path": "src/services"}</text>
 
-  <!-- Message 2 - CLAUDE -->
-  <text x="572" y="285" fill="#009688" font-size="10" font-weight="600" letter-spacing="1">CLAUDE</text>
-  <rect x="572" y="293" width="690" height="60" rx="10" fill="#2E3C43"/>
-  <text x="592" y="314" fill="#90A4AE" font-size="13">Great approach. I'll look at your current service layer and suggest where</text>
-  <text x="592" y="334" fill="#90A4AE" font-size="13">to add caching with minimal changes to your existing code.</text>
+  <text x="572" y="484" fill="#ffcc66" font-size="10" font-weight="600" letter-spacing="1">CLAUDE</text>
+  <rect x="572" y="492" width="690" height="76" rx="10" fill="#1a1e29"/>
+  <text x="592" y="513" fill="#8c96a8" font-size="13">I found 3 service methods that hit the database on every call. Here's the</text>
+  <text x="592" y="533" fill="#8c96a8" font-size="13">recommended caching strategy using ioredis with a TTL-based approach:</text>
+  <text x="592" y="553" fill="#707a8c" font-size="12">1. UserService.findById() — cache key: user:{id}, TTL: 5min</text>
+  <text x="592" y="568" fill="#707a8c" font-size="12">2. ProductService.findAll() — cache key: products:list, TTL: 1min</text>
 
-  <!-- Tool block 1 -->
-  <rect x="572" y="371" width="690" height="40" rx="8" fill="#2E3C43" stroke="#37474F" stroke-width="1" opacity="0.8"/>
-  <circle cx="592" cy="391" r="8" fill="none" stroke="#89ddff" stroke-width="1.5"/>
-  <circle cx="592" cy="391" r="3" fill="#89ddff"/>
-  <text x="610" y="388" fill="#89ddff" font-size="12" font-weight="500">Read</text>
-  <text x="610" y="403" fill="#607D8B" font-size="11" class="mono">src/services/UserService.ts</text>
+  <rect x="572" y="585" width="690" height="40" rx="8" fill="#1a1e29" stroke="#33415e" stroke-width="1" opacity="0.9"/>
+  <circle cx="592" cy="605" r="8" fill="none" stroke="#73d0ff" stroke-width="1.5"/>
+  <circle cx="592" cy="605" r="3" fill="#73d0ff"/>
+  <text x="610" y="602" fill="#73d0ff" font-size="12" font-weight="500">Edit</text>
+  <text x="610" y="617" fill="#707a8c" font-size="11" class="mono">src/services/UserService.ts (+24 lines)</text>
 
-  <!-- Tool block 2 -->
-  <rect x="572" y="419" width="690" height="40" rx="8" fill="#2E3C43" stroke="#37474F" stroke-width="1" opacity="0.8"/>
-  <circle cx="592" cy="439" r="8" fill="none" stroke="#89ddff" stroke-width="1.5"/>
-  <circle cx="592" cy="439" r="3" fill="#89ddff"/>
-  <text x="610" y="436" fill="#89ddff" font-size="12" font-weight="500">Grep</text>
-  <text x="610" y="451" fill="#607D8B" font-size="11" class="mono">{"pattern": "findById|findAll", "path": "src/services"}</text>
-
-  <!-- Message 3 - CLAUDE -->
-  <text x="572" y="484" fill="#009688" font-size="10" font-weight="600" letter-spacing="1">CLAUDE</text>
-  <rect x="572" y="492" width="690" height="76" rx="10" fill="#2E3C43"/>
-  <text x="592" y="513" fill="#90A4AE" font-size="13">I found 3 service methods that hit the database on every call. Here's the</text>
-  <text x="592" y="533" fill="#90A4AE" font-size="13">recommended caching strategy using ioredis with a TTL-based approach:</text>
-  <text x="592" y="553" fill="#78909C" font-size="12">1. UserService.findById() — cache key: user:{id}, TTL: 5min</text>
-  <text x="592" y="568" fill="#78909C" font-size="12">2. ProductService.findAll() — cache key: products:list, TTL: 1min</text>
-
-  <!-- Tool block 3 - Edit -->
-  <rect x="572" y="585" width="690" height="40" rx="8" fill="#2E3C43" stroke="#37474F" stroke-width="1" opacity="0.8"/>
-  <circle cx="592" cy="605" r="8" fill="none" stroke="#89ddff" stroke-width="1.5"/>
-  <circle cx="592" cy="605" r="3" fill="#89ddff"/>
-  <text x="610" y="602" fill="#89ddff" font-size="12" font-weight="500">Edit</text>
-  <text x="610" y="617" fill="#607D8B" font-size="11" class="mono">src/services/UserService.ts (+24 lines)</text>
-
-  <!-- Message 4 - YOU -->
-  <text x="572" y="652" fill="#c3e88d" font-size="10" font-weight="600" letter-spacing="1">YOU</text>
-  <rect x="572" y="660" width="690" height="44" rx="10" fill="#32424A"/>
-  <text x="592" y="686" fill="#B0BEC5" font-size="13">Looks good! Can you also add cache invalidation when a user is updated?</text>
+  <text x="572" y="652" fill="#bae67e" font-size="10" font-weight="600" letter-spacing="1">YOU</text>
+  <rect x="572" y="660" width="690" height="44" rx="10" fill="#242936"/>
+  <text x="592" y="686" fill="#cbccc6" font-size="13">Looks good! Can you also add cache invalidation when a user is updated?</text>
 
   <!-- Bottom fade -->
   <rect x="548" y="720" width="732" height="80" fill="url(#fadeGradient)"/>

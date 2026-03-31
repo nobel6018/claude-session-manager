@@ -81,14 +81,14 @@ export function useKeyboardNav() {
         return;
       }
 
-      // j/k or arrow keys: Navigate sessions
-      if (e.key === "j" || e.key === "ArrowDown") {
+      // j/k or arrow keys: Navigate sessions (ㅓ/ㅏ = Korean j/k)
+      if (e.key === "j" || e.key === "ArrowDown" || e.key === "ㅓ") {
         e.preventDefault();
         moveSelection(1);
         return;
       }
 
-      if (e.key === "k" || e.key === "ArrowUp") {
+      if (e.key === "k" || e.key === "ArrowUp" || e.key === "ㅏ") {
         e.preventDefault();
         moveSelection(-1);
         return;

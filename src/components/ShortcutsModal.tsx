@@ -15,6 +15,11 @@ const SHORTCUTS = [
     { keys: ["⌫"], description: "선택된 세션 삭제" },
     { keys: ["⌘R"], description: "세션 목록 새로고침" },
   ]},
+  { section: "창", items: [
+    { keys: ["⌘N"], description: "창 열기" },
+    { keys: ["⌘W"], description: "창 숨기기 (백그라운드 유지)" },
+    { keys: ["⌘Q"], description: "앱 완전 종료" },
+  ]},
   { section: "기타", items: [
     { keys: ["⌘/"], description: "단축키 목록 표시/숨김" },
   ]},

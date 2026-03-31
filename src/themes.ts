@@ -172,7 +172,7 @@ export const themes: Theme[] = [
   },
 ];
 
-export const defaultThemeId = "material-oceanic";
+export const defaultThemeId = "ayu-mirage";
 
 export function applyTheme(theme: Theme): void {
   const root = document.documentElement;

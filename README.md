@@ -22,6 +22,23 @@
 
 ## 설치
 
+### DMG로 설치 (권장)
+
+[Releases](https://github.com/nobel6018/claude-session-manager/releases)에서 최신 DMG를 다운로드하세요.
+
+> **⚠️ macOS Gatekeeper 경고**
+>
+> Apple Developer 인증서가 없어 처음 실행 시 "손상되었기 때문에 열 수 없습니다" 경고가 뜰 수 있습니다.
+> 아래 두 가지 방법 중 하나로 해결하세요.
+>
+> **방법 1 — 터미널에서 격리 속성 제거:**
+> ```bash
+> xattr -cr /Applications/Claude\ Session\ Manager.app
+> ```
+>
+> **방법 2 — 시스템 설정에서 허용:**
+> `시스템 설정` → `개인 정보 보호 및 보안` → 하단 "확인되지 않은 개발자" 항목 → **"그래도 열기"** 클릭
+
 ### 사전 요구사항
 
 - [Rust](https://rustup.rs/) (1.70+)
