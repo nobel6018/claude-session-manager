@@ -70,7 +70,11 @@ xattr -cr /Applications/Claude\ Session\ Manager.app
 
 - 세션 데이터는 인메모리 캐시(`OnceLock<Mutex<Option<SessionCache>>>`)에 보관 — 프로젝트 전환 시 필터링만
 - 세션 삭제는 `.jsonl` → `.jsonl.deleted` 리네임 (복구 가능)
-- 세션 재개: AppleScript로 iTerm2 새 탭 열고 `cd {cwd} && claude --resume {id}` 실행
+- 세션 재개: iTerm2(AppleScript) 또는 cmux CLI 중 선택 가능 (store의 `terminalApp` 설정)
+  - iTerm2: AppleScript로 새 탭 열고 `cd {cwd} && claude --resume {id}` 실행
+  - cmux: `cmux new-workspace --cwd {cwd} --command "claude --resume {id}"` 실행
+    - cmux CLI 위치: `/Applications/cmux.app/Contents/Resources/bin/cmux` (심볼릭 링크 없을 경우 fallback)
+    - 소켓 경로: `~/Library/Application Support/cmux/cmux.sock`
 - `/rename` 감지: JSONL의 `type: "system"` 메시지에서 `"Session renamed to:"` 파싱
 
 ## macOS 배포 한계

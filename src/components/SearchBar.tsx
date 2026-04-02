@@ -5,7 +5,7 @@ import { useFlash } from "../hooks/useFlash";
 
 
 export function SearchBar() {
-  const { searchQuery, setSearchQuery, searchFocused, setSearchFocused, setShowShortcuts, showShortcuts } =
+  const { searchQuery, setSearchQuery, searchFocused, setSearchFocused, setShowShortcuts, showShortcuts, terminalApp, setTerminalApp } =
     useStore();
 
   // showShortcuts가 true가 될 때만 flash (닫힐 때는 flash 안 함)
@@ -79,6 +79,13 @@ export function SearchBar() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12h.01M12 12h.01M17 12h.01M7 16h10" />
         </svg>
         <kbd className="hidden font-mono text-[10px] lg:block">⌘/</kbd>
+      </button>
+      <button
+        className="ml-2 flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-2 text-text-muted transition-colors hover:bg-bg-hover hover:text-text-secondary"
+        onClick={() => setTerminalApp(terminalApp === 'iterm2' ? 'cmux' : 'iterm2')}
+        title={`터미널: ${terminalApp === 'iterm2' ? 'iTerm2' : 'cmux'} (클릭하여 전환)`}
+      >
+        <span className="text-[11px] font-mono">{terminalApp === 'iterm2' ? 'iTerm2' : 'cmux'}</span>
       </button>
       <ThemeSelector />
     </div>

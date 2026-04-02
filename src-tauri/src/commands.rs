@@ -100,7 +100,14 @@ pub fn search_sessions(query: String) -> Result<Vec<SessionSummary>, String> {
 }
 
 #[tauri::command]
-pub async fn resume_session(session_id: String, cwd: String) -> Result<(), String> {
+pub async fn resume_session(session_id: String, cwd: String, terminal: String) -> Result<(), String> {
+    match terminal.as_str() {
+        "cmux" => resume_in_cmux(session_id, cwd),
+        _ => resume_in_iterm2(session_id, cwd),
+    }
+}
+
+fn resume_in_iterm2(session_id: String, cwd: String) -> Result<(), String> {
     // cd to project directory first so claude --resume can find the session
     let cmd = format!("cd {} && claude --resume {}", cwd, session_id);
     let script = format!(
@@ -119,7 +126,191 @@ pub async fn resume_session(session_id: String, cwd: String) -> Result<(), Strin
     std::process::Command::new("osascript")
         .args(["-e", &script])
         .spawn()
-        .map_err(|e| format!("Failed to open terminal: {}", e))?;
+        .map_err(|e| format!("Failed to open iTerm2: {}", e))?;
+
+    Ok(())
+}
+
+fn cmux_bin() -> String {
+    if std::path::Path::new("/usr/local/bin/cmux").exists() {
+        "/usr/local/bin/cmux".to_string()
+    } else {
+        "/Applications/cmux.app/Contents/Resources/bin/cmux".to_string()
+    }
+}
+
+/// Parse `cmux list-workspaces` and return (find_ref, last_ref).
+/// find_ref: workspace matching `name`, last_ref: last workspace in sidebar.
+/// Output format per line: "[*] workspace:N  [icon] name [tags]"
+fn query_cmux_workspaces(bin: &str, name: &str) -> (Option<String>, Option<String>) {
+    let output = match std::process::Command::new(bin).arg("list-workspaces").output() {
+        Ok(o) if o.status.success() => o,
+        _ => return (None, None),
+    };
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let mut found: Option<String> = None;
+    let mut last: Option<String> = None;
+
+    for line in stdout.lines() {
+        let Some(ws_ref) = line.split_whitespace().find(|t| t.starts_with("workspace:")) else {
+            continue;
+        };
+        last = Some(ws_ref.to_string());
+
+        let after_ref = line[line.find(ws_ref).unwrap_or(0) + ws_ref.len()..].trim();
+        let mut tokens = after_ref.split_whitespace().peekable();
+        if let Some(&first) = tokens.peek() {
+            let is_icon = first.chars().count() == 1
+                && !first.chars().next().map_or(false, |c| c.is_alphanumeric());
+            if is_icon { tokens.next(); }
+        }
+        let ws_name = tokens.take_while(|t| !t.starts_with('[')).collect::<Vec<_>>().join(" ");
+
+        if ws_name == name {
+            found = Some(ws_ref.to_string());
+        }
+    }
+
+    (found, last)
+}
+
+
+/// Returns the last surface ref in a workspace's pane (for append ordering).
+/// Output format per line: "[*] surface:N  [icon] name [tags]"
+fn get_last_pane_surface(bin: &str, ws_ref: &str) -> Option<String> {
+    let output = std::process::Command::new(bin)
+        .args(["list-pane-surfaces", "--workspace", ws_ref])
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .last()
+        .and_then(|line| {
+            line.split_whitespace()
+                .find(|t| t.starts_with("surface:"))
+                .map(|s| s.to_string())
+        })
+}
+
+/// Check if a surface still exists in a workspace, and return its 0-based index if so.
+fn cmux_surface_index(bin: &str, ws_ref: &str, surface_ref: &str) -> Option<usize> {
+    let out = std::process::Command::new(bin)
+        .args(["list-pane-surfaces", "--workspace", ws_ref])
+        .output()
+        .ok()?;
+
+    String::from_utf8_lossy(&out.stdout)
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .enumerate()
+        .find(|(_, l)| l.split_whitespace().any(|t| t == surface_ref))
+        .map(|(i, _)| i)
+}
+
+fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
+    let bin = cmux_bin();
+    let claude_cmd = format!("claude --resume {}", session_id);
+
+    // 1. Check if this session already has a live cmux surface
+    if let Ok(Some((ws_ref, surface_ref))) = db().get_cmux_surface(&session_id) {
+        if let Some(idx) = cmux_surface_index(&bin, &ws_ref, &surface_ref) {
+            // Focus in-place: move-surface to its own index → no reorder, just focus
+            let _ = std::process::Command::new(&bin)
+                .args(["select-workspace", "--workspace", &ws_ref])
+                .output();
+            let _ = std::process::Command::new(&bin)
+                .args(["move-surface", "--surface", &surface_ref, "--index", &idx.to_string(), "--focus", "true"])
+                .output();
+            return Ok(());
+        }
+        // Surface is dead — clean up stale record
+        let _ = db().delete_cmux_surface(&session_id);
+    }
+
+    // 2. Derive project name for workspace grouping
+    let project_name = std::path::Path::new(&cwd)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or("claude")
+        .to_string();
+
+    let (ws_match, last_workspace) = query_cmux_workspaces(&bin, &project_name);
+
+    if let Some(ws_ref) = ws_match {
+        // Existing project workspace — append new surface (tab) at end + focus
+        let last_surface = get_last_pane_surface(&bin, &ws_ref);
+
+        let out = std::process::Command::new(&bin)
+            .args(["new-surface", "--workspace", &ws_ref, "--type", "terminal"])
+            .output()
+            .map_err(|e| format!("Failed to create surface: {}", e))?;
+
+        // Output: "OK surface:N pane:M workspace:P"
+        let new_surface_ref = String::from_utf8_lossy(&out.stdout)
+            .split_whitespace()
+            .find(|t| t.starts_with("surface:"))
+            .unwrap_or("")
+            .to_string();
+
+        // Move to end + focus in one call
+        if let Some(last_ref) = last_surface {
+            let _ = std::process::Command::new(&bin)
+                .args(["move-surface", "--surface", &new_surface_ref, "--after", &last_ref, "--focus", "true"])
+                .output();
+        }
+
+        // Send command
+        let cmd_line = format!("cd {} && {}\n", cwd, claude_cmd);
+        std::process::Command::new(&bin)
+            .args(["send", "--workspace", &ws_ref, "--surface", &new_surface_ref, &cmd_line])
+            .spawn()
+            .map_err(|e| format!("Failed to send command to cmux: {}", e))?;
+
+        // Select the workspace
+        let _ = std::process::Command::new(&bin)
+            .args(["select-workspace", "--workspace", &ws_ref])
+            .output();
+
+        // Persist surface mapping for future resumes
+        let _ = db().save_cmux_surface(&session_id, &ws_ref, &new_surface_ref);
+    } else {
+        // New project — select last workspace first so new one is inserted at bottom
+        if let Some(last_ref) = last_workspace {
+            let _ = std::process::Command::new(&bin)
+                .args(["select-workspace", "--workspace", &last_ref])
+                .output();
+        }
+
+        let out = std::process::Command::new(&bin)
+            .args(["new-workspace", "--name", &project_name, "--cwd", &cwd, "--command", &claude_cmd])
+            .output()
+            .map_err(|e| format!("Failed to open cmux: {}", e))?;
+
+        let new_ws_ref = String::from_utf8_lossy(&out.stdout)
+            .split_whitespace()
+            .find(|t| t.starts_with("workspace:"))
+            .unwrap_or("")
+            .to_string();
+
+        if !new_ws_ref.is_empty() {
+            // Select the new workspace
+            let _ = std::process::Command::new(&bin)
+                .args(["select-workspace", "--workspace", &new_ws_ref])
+                .output();
+
+            // Get the surface that was auto-created with the workspace and persist it
+            if let Some(surface_ref) = get_last_pane_surface(&bin, &new_ws_ref) {
+                let _ = db().save_cmux_surface(&session_id, &new_ws_ref, &surface_ref);
+            }
+        }
+    }
 
     Ok(())
 }

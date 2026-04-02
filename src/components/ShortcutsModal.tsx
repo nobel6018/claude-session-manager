@@ -1,30 +1,33 @@
 import { useEffect } from "react";
 import { useStore } from "../store";
 
-const SHORTCUTS = [
-  { section: "탐색", items: [
-    { keys: ["j", "↓"], description: "다음 세션으로 이동" },
-    { keys: ["k", "↑"], description: "이전 세션으로 이동" },
-  ]},
-  { section: "검색", items: [
-    { keys: ["⌘K", "/"], description: "검색 포커스" },
-    { keys: ["Esc"], description: "검색 닫기" },
-  ]},
-  { section: "세션", items: [
-    { keys: ["⌘↩"], description: "선택된 세션 iTerm2에서 재개" },
-    { keys: ["⌫"], description: "선택된 세션 숨김 (복구 가능)" },
-    { keys: ["⌘R"], description: "세션 목록 새로고침" },
-  ]},
-  { section: "창", items: [
-    { keys: ["⌘N"], description: "창 열기" },
-    { keys: ["⌘W"], description: "창 숨기기 (백그라운드 유지)" },
-    { keys: ["⌘Q"], description: "앱 완전 종료" },
-  ]},
-  { section: "기타", items: [
-    { keys: ["⌘."], description: "프로젝트 사이드바 접기/펼치기" },
-    { keys: ["⌘/"], description: "단축키 목록 표시/숨김" },
-  ]},
-];
+function buildShortcuts(terminalApp: 'iterm2' | 'cmux') {
+  const terminalName = terminalApp === 'cmux' ? 'cmux' : 'iTerm2';
+  return [
+    { section: "탐색", items: [
+      { keys: ["j", "↓"], description: "다음 세션으로 이동" },
+      { keys: ["k", "↑"], description: "이전 세션으로 이동" },
+    ]},
+    { section: "검색", items: [
+      { keys: ["⌘K", "/"], description: "검색 포커스" },
+      { keys: ["Esc"], description: "검색 닫기" },
+    ]},
+    { section: "세션", items: [
+      { keys: ["⌘↩"], description: `선택된 세션 ${terminalName}에서 재개` },
+      { keys: ["⌫"], description: "선택된 세션 숨김 (복구 가능)" },
+      { keys: ["⌘R"], description: "세션 목록 새로고침" },
+    ]},
+    { section: "창", items: [
+      { keys: ["⌘N"], description: "창 열기" },
+      { keys: ["⌘W"], description: "창 숨기기 (백그라운드 유지)" },
+      { keys: ["⌘Q"], description: "앱 완전 종료" },
+    ]},
+    { section: "기타", items: [
+      { keys: ["⌘."], description: "프로젝트 사이드바 접기/펼치기" },
+      { keys: ["⌘/"], description: "단축키 목록 표시/숨김" },
+    ]},
+  ];
+}
 
 function splitKeyCombo(key: string): string[] {
   const modifiers = ["⌘", "⌃", "⌥", "⇧"];
@@ -41,7 +44,8 @@ function splitKeyCombo(key: string): string[] {
 }
 
 export function ShortcutsModal() {
-  const { showShortcuts, setShowShortcuts } = useStore();
+  const { showShortcuts, setShowShortcuts, terminalApp } = useStore();
+  const shortcuts = buildShortcuts(terminalApp);
 
   useEffect(() => {
     if (!showShortcuts) return;
@@ -79,7 +83,7 @@ export function ShortcutsModal() {
 
         {/* Shortcut list */}
         <div className="px-6 py-5 space-y-5">
-          {SHORTCUTS.map(({ section, items }) => (
+          {shortcuts.map(({ section, items }) => (
             <div key={section}>
               <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-text-muted/60">
                 {section}

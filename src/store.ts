@@ -34,6 +34,7 @@ interface AppState {
   sidebarCollapsed: boolean;
   showDeleted: boolean;
   deletedSessions: import("./types").SessionSummary[];
+  terminalApp: 'iterm2' | 'cmux';
 
   // Actions
   loadProjects: () => Promise<void>;
@@ -61,6 +62,7 @@ interface AppState {
   loadDeletedSessions: (projectId?: string | null) => Promise<void>;
   toggleShowDeleted: () => void;
   restoreSession: (sessionId: string, projectId: string) => Promise<void>;
+  setTerminalApp: (app: 'iterm2' | 'cmux') => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -85,6 +87,7 @@ export const useStore = create<AppState>((set, get) => ({
   sidebarCollapsed: localStorage.getItem("sidebarCollapsed") === "true",
   showDeleted: false,
   deletedSessions: [],
+  terminalApp: (localStorage.getItem("terminalApp") as 'iterm2' | 'cmux') ?? 'iterm2',
 
   loadProjects: async () => {
     const projects = await invoke<Project[]>("get_projects");
@@ -234,7 +237,12 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   resumeSession: async (sessionId: string, cwd: string) => {
-    await invoke("resume_session", { sessionId, cwd });
+    await invoke("resume_session", { sessionId, cwd, terminal: get().terminalApp });
+  },
+
+  setTerminalApp: (app: 'iterm2' | 'cmux') => {
+    localStorage.setItem("terminalApp", app);
+    set({ terminalApp: app });
   },
 
   toggleBookmark: async (sessionId: string) => {

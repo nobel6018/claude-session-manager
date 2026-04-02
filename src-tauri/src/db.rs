@@ -27,6 +27,11 @@ impl Database {
                 session_id TEXT PRIMARY KEY,
                 created_at TEXT DEFAULT (datetime('now'))
             );
+            CREATE TABLE IF NOT EXISTS cmux_surfaces (
+                session_id TEXT PRIMARY KEY,
+                workspace_ref TEXT NOT NULL,
+                surface_ref TEXT NOT NULL
+            );
             CREATE INDEX IF NOT EXISTS idx_tags_session ON session_tags(session_id);
             CREATE INDEX IF NOT EXISTS idx_tags_tag ON session_tags(tag);",
         )?;
@@ -114,6 +119,38 @@ impl Database {
             .filter_map(|r| r.ok())
             .collect();
         Ok(ids)
+    }
+
+    pub fn save_cmux_surface(&self, session_id: &str, workspace_ref: &str, surface_ref: &str) -> Result<()> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute(
+            "INSERT OR REPLACE INTO cmux_surfaces (session_id, workspace_ref, surface_ref) VALUES (?1, ?2, ?3)",
+            params![session_id, workspace_ref, surface_ref],
+        )?;
+        Ok(())
+    }
+
+    pub fn get_cmux_surface(&self, session_id: &str) -> Result<Option<(String, String)>> {
+        let conn = self.conn.lock().unwrap();
+        let result = conn.query_row(
+            "SELECT workspace_ref, surface_ref FROM cmux_surfaces WHERE session_id = ?1",
+            params![session_id],
+            |row| Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?)),
+        );
+        match result {
+            Ok(pair) => Ok(Some(pair)),
+            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(e) => Err(e),
+        }
+    }
+
+    pub fn delete_cmux_surface(&self, session_id: &str) -> Result<()> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute(
+            "DELETE FROM cmux_surfaces WHERE session_id = ?1",
+            params![session_id],
+        )?;
+        Ok(())
     }
 }
 
