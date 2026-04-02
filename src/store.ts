@@ -32,6 +32,8 @@ interface AppState {
   showShortcuts: boolean;
   showAbout: boolean;
   sidebarCollapsed: boolean;
+  showDeleted: boolean;
+  deletedSessions: import("./types").SessionSummary[];
 
   // Actions
   loadProjects: () => Promise<void>;
@@ -56,6 +58,9 @@ interface AppState {
   toggleSidebar: () => void;
   refresh: () => void;
   deleteSession: (sessionId: string, projectId: string) => Promise<void>;
+  loadDeletedSessions: (projectId?: string | null) => Promise<void>;
+  toggleShowDeleted: () => void;
+  restoreSession: (sessionId: string, projectId: string) => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -78,6 +83,8 @@ export const useStore = create<AppState>((set, get) => ({
   showShortcuts: false,
   showAbout: false,
   sidebarCollapsed: localStorage.getItem("sidebarCollapsed") === "true",
+  showDeleted: false,
+  deletedSessions: [],
 
   loadProjects: async () => {
     const projects = await invoke<Project[]>("get_projects");
@@ -107,8 +114,10 @@ export const useStore = create<AppState>((set, get) => ({
       selectedSessionId: null,
       sessionDetail: null,
       selectedIndex: 0,
+      showDeleted: false,
     });
     get().loadSessions(projectId);
+    get().loadDeletedSessions(projectId);
   },
 
   selectSession: (sessionId: string, projectId: string) => {
@@ -184,6 +193,28 @@ export const useStore = create<AppState>((set, get) => ({
 
   setShowShortcuts: (value: boolean) => set({ showShortcuts: value }),
   setShowAbout: (value: boolean) => set({ showAbout: value }),
+
+  loadDeletedSessions: async (projectId?: string | null) => {
+    const pid = projectId !== undefined ? projectId : get().selectedProjectId;
+    const deleted = await invoke<import("./types").SessionSummary[]>("get_deleted_sessions", {
+      projectId: pid ?? null,
+    });
+    set({ deletedSessions: deleted });
+  },
+
+  toggleShowDeleted: () => {
+    set(state => ({ showDeleted: !state.showDeleted }));
+  },
+
+  restoreSession: async (sessionId: string, projectId: string) => {
+    await invoke("restore_session", { sessionId, projectId });
+    const updatedDeleted = get().deletedSessions.filter(s => s.sessionId !== sessionId);
+    // 복구 후 숨겨진 세션이 0개면 자동으로 일반 모드로 복귀
+    set({ deletedSessions: updatedDeleted, showDeleted: updatedDeleted.length > 0 });
+    const { loadProjects, loadSessions, selectedProjectId } = get();
+    await loadProjects();
+    await loadSessions(selectedProjectId);
+  },
 
   toggleSidebar: () => {
     const next = !get().sidebarCollapsed;

@@ -46,13 +46,14 @@ function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () =>
     >
       {confirming ? (
         <div className="px-4 py-2">
-          <p className="mb-2 text-xs text-text-secondary">정말 삭제할까요?</p>
+          <p className="mb-1 text-xs text-text-secondary">정말 숨길까요?</p>
+          <p className="mb-3 text-[11px] text-text-muted">파일은 삭제되지 않고 숨겨집니다.</p>
           <div className="flex gap-2">
             <button
               className="flex-1 rounded-md bg-red/15 px-3 py-1 text-xs font-medium text-red hover:bg-red/25"
               onClick={handleDeleteConfirm}
             >
-              삭제
+              숨기기
             </button>
             <button
               className="flex-1 rounded-md bg-bg-hover px-3 py-1 text-xs text-text-secondary hover:text-text-primary"
@@ -80,9 +81,9 @@ function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () =>
             onClick={() => setConfirming(true)}
           >
             <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
             </svg>
-            세션 삭제
+            세션 숨김
             <span className="ml-auto text-xs text-text-muted">⌫</span>
           </button>
         </>
@@ -102,18 +103,19 @@ export function SessionList({ width, panelRef }: { width: number; panelRef?: Rea
     isLoading,
     pinRenamed,
     setPinRenamed,
+    showDeleted,
+    deletedSessions,
+    toggleShowDeleted,
+    restoreSession,
   } = useStore();
   const listRef = useRef<HTMLDivElement>(null);
 
-  // listRef(스크롤)와 panelRef(드래그 DOM 조작) 두 ref를 하나의 엘리먼트에 연결
+  // listRef(scrollIntoView)와 panelRef(드래그 DOM 조작)를 같은 엘리먼트에 연결
   const mergedRef = useCallback((node: HTMLDivElement | null) => {
     (listRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
     if (panelRef) (panelRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
   }, [panelRef]);
   const [contextMenu, setContextMenu] = useState<ContextMenu | null>(null);
-
-  // 정렬은 store에서 처리됨 — sessions가 항상 올바른 순서
-  const sortedSessions = sessions;
 
   const handleContextMenu = useCallback((e: React.MouseEvent, session: SessionSummary) => {
     e.preventDefault();
@@ -121,9 +123,10 @@ export function SessionList({ width, panelRef }: { width: number; panelRef?: Rea
   }, []);
 
   useEffect(() => {
+    if (showDeleted) return;
     const el = listRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
     el?.scrollIntoView({ block: "nearest" });
-  }, [selectedIndex]);
+  }, [selectedIndex, showDeleted]);
 
   if (isLoading) {
     return (
@@ -136,21 +139,11 @@ export function SessionList({ width, panelRef }: { width: number; panelRef?: Rea
     );
   }
 
-  if (sessions.length === 0) {
+  if (!showDeleted && sessions.length === 0) {
     return (
       <div className="flex shrink-0 flex-col items-center justify-center border-r border-divider bg-bg-primary" style={{ width }}>
-        <svg
-          className="mb-4 h-12 w-12 text-text-muted/20"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={1}
-            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-          />
+        <svg className="mb-4 h-12 w-12 text-text-muted/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
         </svg>
         <span className="text-sm text-text-muted">No sessions found</span>
         <span className="mt-1.5 text-xs text-text-muted/50">Try adjusting your search</span>
@@ -159,6 +152,7 @@ export function SessionList({ width, panelRef }: { width: number; panelRef?: Rea
   }
 
   const renamedCount = sessions.filter((s) => s.isRenamed).length;
+  const hasDeleted = deletedSessions.length > 0;
 
   return (
     <>
@@ -167,47 +161,109 @@ export function SessionList({ width, panelRef }: { width: number; panelRef?: Rea
         className="flex shrink-0 flex-col overflow-y-auto border-r border-divider bg-bg-primary"
         style={{ width }}
       >
-        {/* Renamed-first toggle */}
-        {renamedCount > 0 && (
-          <div className="flex items-center justify-between border-b border-divider px-4 py-2">
-            <div className="flex items-center gap-1.5 text-[11px] text-text-muted">
-              <svg className="h-3 w-3 opacity-50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              이름 지정 <span className="tabular-nums font-medium">{renamedCount}</span>개
-            </div>
+        {/* ── 헤더: 이름 지정 먼저 + 숨겨진 세션 토글 ── */}
+        {(renamedCount > 0 || hasDeleted) && (
+          <div className="flex items-center justify-between border-b border-divider px-3 py-2 flex-shrink-0">
+            {/* 왼쪽: 이름 지정 먼저 */}
+            {renamedCount > 0 ? (
+              <div className="flex items-center gap-1.5">
+                <svg className="h-3 w-3 shrink-0 text-text-muted opacity-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <span className={`text-[11px] text-text-muted tabular-nums transition-opacity ${showDeleted ? "opacity-35" : ""}`}>
+                  이름 지정 {renamedCount}개
+                </span>
+                <button
+                  onClick={() => setPinRenamed(!pinRenamed)}
+                  disabled={showDeleted}
+                  className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium transition-all ${
+                    showDeleted
+                      ? "opacity-30 cursor-not-allowed text-text-muted"
+                      : pinRenamed
+                        ? "bg-accent/15 text-accent"
+                        : "text-text-muted hover:text-text-secondary hover:bg-bg-hover"
+                  }`}
+                  title="이름 지정된 세션을 먼저 표시"
+                >
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                  </svg>
+                  먼저 표시
+                </button>
+              </div>
+            ) : (
+              <div />
+            )}
+
+            {/* 오른쪽: 숨겨진 세션 토글 */}
             <button
-              onClick={() => setPinRenamed(!pinRenamed)}
-              className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                pinRenamed
-                  ? "bg-accent/15 text-accent"
-                  : "text-text-muted hover:text-text-secondary"
+              onClick={toggleShowDeleted}
+              disabled={!hasDeleted}
+              className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-medium transition-all ${
+                !hasDeleted
+                  ? "cursor-not-allowed border-transparent text-text-muted opacity-25"
+                  : showDeleted
+                    ? "border-accent/25 bg-accent/12 text-accent"
+                    : "border-divider text-text-muted hover:border-border hover:text-text-secondary"
               }`}
-              title="이름 지정된 세션을 먼저 표시"
+              title={hasDeleted ? "숨겨진 세션 보기" : "숨겨진 세션 없음"}
             >
-              <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+              <svg className="h-3 w-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {showDeleted ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                ) : (
+                  <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></>
+                )}
               </svg>
-              이름 지정 먼저
+              숨겨진 세션
+              {hasDeleted && (
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] tabular-nums font-semibold ${showDeleted ? "bg-accent text-white" : "bg-bg-hover text-text-muted"}`}>
+                  {deletedSessions.length}
+                </span>
+              )}
             </button>
           </div>
         )}
-        {sortedSessions.map((session, index) => (
-          <SessionCard
-            key={session.sessionId}
-            session={session}
-            index={index}
-            isSelected={
-              selectedSessionId === session.sessionId || selectedIndex === index
-            }
-            onSelect={() => {
-              setSelectedIndex(index);
-              selectSession(session.sessionId, session.projectId);
-            }}
-            onToggleBookmark={() => toggleBookmark(session.sessionId)}
-            onContextMenu={(e) => handleContextMenu(e, session)}
-          />
-        ))}
+
+        {/* ── 숨겨진 세션 모드 배너 ── */}
+        {showDeleted && (
+          <div className="flex items-center gap-2 border-b border-accent/15 bg-accent/7 px-4 py-1.5 flex-shrink-0">
+            <svg className="h-3 w-3 shrink-0 text-accent/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242" />
+            </svg>
+            <span className="flex-1 text-[11px] text-accent/70">
+              숨겨진 세션 {deletedSessions.length}개 — 복구하면 목록에 다시 나타납니다
+            </span>
+          </div>
+        )}
+
+        {/* ── 세션 목록 (일반 또는 숨겨진) ── */}
+        {showDeleted ? (
+          deletedSessions.map((session) => (
+            <DeletedSessionRow
+              key={session.sessionId}
+              session={session}
+              isSelected={selectedSessionId === session.sessionId}
+              onSelect={() => selectSession(session.sessionId, session.projectId)}
+              onRestore={() => restoreSession(session.sessionId, session.projectId)}
+            />
+          ))
+        ) : (
+          sessions.map((session, index) => (
+            <SessionCard
+              key={session.sessionId}
+              session={session}
+              index={index}
+              isSelected={selectedSessionId === session.sessionId || selectedIndex === index}
+              onSelect={() => {
+                setSelectedIndex(index);
+                selectSession(session.sessionId, session.projectId);
+              }}
+              onToggleBookmark={() => toggleBookmark(session.sessionId)}
+              onContextMenu={(e) => handleContextMenu(e, session)}
+            />
+          ))
+        )}
       </div>
       {contextMenu && (
         <ContextMenuPopup
@@ -324,6 +380,59 @@ function SessionCard({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function DeletedSessionRow({
+  session,
+  isSelected,
+  onSelect,
+  onRestore,
+}: {
+  session: SessionSummary;
+  isSelected: boolean;
+  onSelect: () => void;
+  onRestore: () => void;
+}) {
+  const date = new Date(session.startedAt);
+  const dateStr = formatRelativeDate(date);
+  const projectShort = session.projectName.split("/").pop() || session.projectName;
+
+  return (
+    <div
+      className={`group cursor-pointer border-b border-divider px-5 py-2.5 transition-colors duration-100 ${
+        isSelected
+          ? "border-l-[3px] border-l-accent bg-bg-selected"
+          : "border-l-[3px] border-l-transparent hover:bg-bg-hover"
+      }`}
+      style={{ opacity: isSelected ? 0.9 : 0.65 }}
+      onClick={onSelect}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="flex-1 truncate text-[14px] font-medium leading-snug text-text-primary">
+          {session.title}
+        </h3>
+        <button
+          className="mt-0.5 shrink-0 rounded-md bg-bg-hover px-2.5 py-1 text-[11px] font-medium text-text-muted opacity-0 transition-all group-hover:opacity-100 hover:bg-accent/15 hover:text-accent"
+          onClick={(e) => { e.stopPropagation(); onRestore(); }}
+          title="세션 복구"
+        >
+          복구
+        </button>
+      </div>
+      <div className="mt-2 text-[12px] font-medium text-text-muted/70">{projectShort}</div>
+      <div className="mt-2.5 flex items-center gap-2.5 text-[12px] text-text-muted">
+        <span>{dateStr}</span>
+        <span className="opacity-30">·</span>
+        <span>{session.messageCount} msgs</span>
+        {session.toolUseCount > 0 && (
+          <>
+            <span className="opacity-30">·</span>
+            <span className="font-mono text-tool">{session.toolUseCount} tools</span>
+          </>
+        )}
+      </div>
     </div>
   );
 }

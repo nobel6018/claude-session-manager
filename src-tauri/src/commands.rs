@@ -1,7 +1,7 @@
 use crate::db::Database;
 use crate::models::{Project, SessionDetail, SessionSummary};
 use crate::parser::parse_session_detail;
-use crate::scanner::{claude_dir, scan_projects, scan_sessions};
+use crate::scanner::{claude_dir, scan_deleted_sessions, scan_projects, scan_sessions};
 use std::sync::{Mutex, OnceLock};
 
 fn db() -> &'static Database {
@@ -64,16 +64,19 @@ pub fn get_session_detail(
     session_id: String,
     project_id: String,
 ) -> Result<SessionDetail, String> {
-    let path = claude_dir()
-        .join("projects")
-        .join(&project_id)
-        .join(format!("{}.jsonl", session_id));
+    let base = claude_dir().join("projects").join(&project_id);
+    let path = base.join(format!("{}.jsonl", &session_id));
+    let deleted_path = base.join(format!("{}.jsonl.deleted", &session_id));
 
-    if !path.exists() {
+    let resolved = if path.exists() {
+        path
+    } else if deleted_path.exists() {
+        deleted_path
+    } else {
         return Err(format!("Session file not found: {}", session_id));
-    }
+    };
 
-    Ok(parse_session_detail(&path, &session_id))
+    Ok(parse_session_detail(&resolved, &session_id))
 }
 
 #[tauri::command]
@@ -174,6 +177,36 @@ pub fn delete_session(session_id: String, project_id: String) -> Result<(), Stri
         }
     }
 
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_deleted_sessions(project_id: Option<String>) -> Result<Vec<SessionSummary>, String> {
+    let tags_map = db().get_all_tags_map().map_err(|e| e.to_string())?;
+    let bookmarks = db().get_bookmarked_sessions().map_err(|e| e.to_string())?;
+    Ok(scan_deleted_sessions(project_id.as_deref(), &tags_map, &bookmarks))
+}
+
+#[tauri::command]
+pub fn restore_session(session_id: String, project_id: String) -> Result<(), String> {
+    let deleted_path = claude_dir()
+        .join("projects")
+        .join(&project_id)
+        .join(format!("{}.jsonl.deleted", session_id));
+
+    if !deleted_path.exists() {
+        return Err(format!("Deleted session file not found: {}", session_id));
+    }
+
+    let restored_path = claude_dir()
+        .join("projects")
+        .join(&project_id)
+        .join(format!("{}.jsonl", session_id));
+
+    std::fs::rename(&deleted_path, &restored_path)
+        .map_err(|e| format!("Failed to restore session: {}", e))?;
+
+    invalidate_cache();
     Ok(())
 }
 

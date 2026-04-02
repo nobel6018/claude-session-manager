@@ -35,7 +35,7 @@ function ResizeHandle({
 }
 
 function App() {
-  const { loadProjects, loadSessions, theme } = useStore();
+  const { loadProjects, loadSessions, loadDeletedSessions, theme } = useStore();
 
   const { sidebarCollapsed } = useStore();
   const sidebar = usePanelResize(208, "sidebarWidth", SIDEBAR_SNAPS, 140, 360);
@@ -45,7 +45,8 @@ function App() {
     applyTheme(theme);
     loadProjects();
     loadSessions();
-  }, [loadProjects, loadSessions, theme]);
+    loadDeletedSessions();
+  }, [loadProjects, loadSessions, loadDeletedSessions, theme]);
 
   useKeyboardNav();
 

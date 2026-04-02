@@ -12,7 +12,7 @@ const SHORTCUTS = [
   ]},
   { section: "세션", items: [
     { keys: ["⌘↩"], description: "선택된 세션 iTerm2에서 재개" },
-    { keys: ["⌫"], description: "선택된 세션 삭제" },
+    { keys: ["⌫"], description: "선택된 세션 숨김 (복구 가능)" },
     { keys: ["⌘R"], description: "세션 목록 새로고침" },
   ]},
   { section: "창", items: [

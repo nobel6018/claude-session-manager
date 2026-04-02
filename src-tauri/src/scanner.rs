@@ -136,6 +136,79 @@ pub fn scan_sessions(
     sessions
 }
 
+/// Scan deleted sessions (.jsonl.deleted) for a given project (or all projects)
+pub fn scan_deleted_sessions(
+    project_id: Option<&str>,
+    tags_map: &HashMap<String, Vec<String>>,
+    bookmarks: &[String],
+) -> Vec<SessionSummary> {
+    let projects_dir = claude_dir().join("projects");
+    if !projects_dir.exists() {
+        return Vec::new();
+    }
+
+    let mut sessions: Vec<SessionSummary> = Vec::new();
+
+    let dirs_to_scan: Vec<PathBuf> = if let Some(pid) = project_id {
+        vec![projects_dir.join(pid)]
+    } else {
+        fs::read_dir(&projects_dir)
+            .into_iter()
+            .flat_map(|entries| entries.flatten())
+            .map(|e| e.path())
+            .filter(|p| p.is_dir())
+            .collect()
+    };
+
+    for dir in dirs_to_scan {
+        let dir_name = dir
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_default();
+        let decoded_path = decode_project_path(&dir_name);
+        let display_name = project_display_name(&decoded_path);
+
+        if let Ok(entries) = fs::read_dir(&dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                let file_name = entry.file_name().to_string_lossy().to_string();
+
+                if !file_name.ends_with(".jsonl.deleted") {
+                    continue;
+                }
+
+                let session_id = file_name.trim_end_matches(".jsonl.deleted").to_string();
+                if session_id.len() < 8 {
+                    continue;
+                }
+
+                if let Some(raw) = parse_session_summary(&path) {
+                    let session_tags = tags_map.get(&session_id).cloned().unwrap_or_default();
+                    let is_bookmarked = bookmarks.contains(&session_id);
+
+                    sessions.push(SessionSummary {
+                        session_id,
+                        project_id: dir_name.clone(),
+                        project_name: display_name.clone(),
+                        cwd: raw.cwd,
+                        title: raw.title,
+                        started_at: raw.started_at,
+                        message_count: raw.message_count,
+                        human_message_count: raw.human_message_count,
+                        tool_use_count: raw.tool_use_count,
+                        is_bookmarked,
+                        is_renamed: raw.is_renamed,
+                        tags: session_tags,
+                    });
+                }
+            }
+        }
+    }
+
+    sessions.sort_by(|a, b| b.started_at.cmp(&a.started_at));
+    sessions
+}
+
 fn count_jsonl_files(dir: &Path) -> usize {
     fs::read_dir(dir)
         .into_iter()
