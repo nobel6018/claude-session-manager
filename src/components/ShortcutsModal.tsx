@@ -26,6 +26,20 @@ const SHORTCUTS = [
   ]},
 ];
 
+function splitKeyCombo(key: string): string[] {
+  const modifiers = ["⌘", "⌃", "⌥", "⇧"];
+  const parts: string[] = [];
+  let rest = key;
+  for (const mod of modifiers) {
+    if (rest.startsWith(mod)) {
+      parts.push(mod);
+      rest = rest.slice(mod.length);
+    }
+  }
+  if (rest) parts.push(rest);
+  return parts.length > 1 ? parts : [key];
+}
+
 export function ShortcutsModal() {
   const { showShortcuts, setShowShortcuts } = useStore();
 
@@ -81,9 +95,13 @@ export function ShortcutsModal() {
                       {keys.map((key, i) => (
                         <span key={key} className="flex items-center gap-1">
                           {i > 0 && <span className="text-[10px] text-text-muted/40">또는</span>}
-                          <kbd className="rounded-md border border-border/60 bg-bg-primary/80 px-2 py-0.5 font-mono text-[11px] text-text-primary">
-                            {key}
-                          </kbd>
+                          <span className="flex items-center gap-0.5">
+                            {splitKeyCombo(key).map((part) => (
+                              <kbd key={part} className="rounded-md border border-border/60 bg-bg-primary/80 px-2 py-0.5 font-mono text-[11px] text-text-primary">
+                                {part}
+                              </kbd>
+                            ))}
+                          </span>
                         </span>
                       ))}
                     </div>
