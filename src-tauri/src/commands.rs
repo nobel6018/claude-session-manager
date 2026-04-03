@@ -214,26 +214,34 @@ fn cmux_surface_index(bin: &str, ws_ref: &str, surface_ref: &str) -> Option<usiz
         .map(|(i, _)| i)
 }
 
+fn log(msg: &str) {
+    use std::io::Write;
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open("/tmp/csm-cmux.log") {
+        let _ = writeln!(f, "{}", msg);
+    }
+}
+
 fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
     let bin = cmux_bin();
     let claude_cmd = format!("claude --resume {}", session_id);
+    log(&format!("=== resume_in_cmux start: session={} cwd={} bin={}", session_id, cwd, bin));
 
     // 1. Check if this session already has a live cmux surface
     if let Ok(Some((ws_ref, surface_ref))) = db().get_cmux_surface(&session_id) {
+        log(&format!("path=existing_surface ws={} surface={}", ws_ref, surface_ref));
         if let Some(idx) = cmux_surface_index(&bin, &ws_ref, &surface_ref) {
-            // Focus in-place: move-surface to its own index → no reorder, just focus
+            log(&format!("surface alive at idx={}, focusing", idx));
             let _ = std::process::Command::new(&bin)
                 .args(["select-workspace", "--workspace", &ws_ref])
                 .output();
             let _ = std::process::Command::new(&bin)
                 .args(["move-surface", "--surface", &surface_ref, "--index", &idx.to_string(), "--focus", "true"])
                 .output();
-            let _ = std::process::Command::new("/usr/bin/open")
-                .args(["-a", "cmux"])
-                .spawn();
+            let r = std::process::Command::new("/usr/bin/open").args(["-a", "cmux"]).spawn();
+            log(&format!("open -a cmux: {:?}", r.map(|_| "ok")));
             return Ok(());
         }
-        // Surface is dead — clean up stale record
+        log("surface dead, cleaning up");
         let _ = db().delete_cmux_surface(&session_id);
     }
 
@@ -244,52 +252,49 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
         .unwrap_or("claude")
         .to_string();
 
+    log(&format!("project_name={}", project_name));
     let (ws_match, last_workspace) = query_cmux_workspaces(&bin, &project_name);
+    log(&format!("ws_match={:?} last_workspace={:?}", ws_match, last_workspace));
 
     if let Some(ws_ref) = ws_match {
-        // Existing project workspace — append new surface (tab) at end + focus
+        log(&format!("path=existing_workspace ws={}", ws_ref));
         let last_surface = get_last_pane_surface(&bin, &ws_ref);
 
         let out = std::process::Command::new(&bin)
             .args(["new-surface", "--workspace", &ws_ref, "--type", "terminal"])
             .output()
             .map_err(|e| format!("Failed to create surface: {}", e))?;
+        log(&format!("new-surface stdout={}", String::from_utf8_lossy(&out.stdout).trim()));
 
-        // Output: "OK surface:N pane:M workspace:P"
         let new_surface_ref = String::from_utf8_lossy(&out.stdout)
             .split_whitespace()
             .find(|t| t.starts_with("surface:"))
             .unwrap_or("")
             .to_string();
 
-        // Move to end + focus in one call
         if let Some(last_ref) = last_surface {
             let _ = std::process::Command::new(&bin)
                 .args(["move-surface", "--surface", &new_surface_ref, "--after", &last_ref, "--focus", "true"])
                 .output();
         }
 
-        // Send command — cmux interprets literal \n as Enter (not actual newline byte)
         let cmd_line = format!("cd {} && {}\\n", cwd, claude_cmd);
+        log(&format!("send cmd_line={}", cmd_line));
         std::process::Command::new(&bin)
             .args(["send", "--workspace", &ws_ref, "--surface", &new_surface_ref, &cmd_line])
             .spawn()
             .map_err(|e| format!("Failed to send command to cmux: {}", e))?;
 
-        // Select the workspace
         let _ = std::process::Command::new(&bin)
             .args(["select-workspace", "--workspace", &ws_ref])
             .output();
 
-        // Bring cmux to foreground
-        let _ = std::process::Command::new("/usr/bin/open")
-            .args(["-a", "cmux"])
-            .spawn();
+        let r = std::process::Command::new("/usr/bin/open").args(["-a", "cmux"]).spawn();
+        log(&format!("open -a cmux: {:?}", r.map(|_| "ok")));
 
-        // Persist surface mapping for future resumes
         let _ = db().save_cmux_surface(&session_id, &ws_ref, &new_surface_ref);
     } else {
-        // New project — select last workspace first so new one is inserted at bottom
+        log("path=new_workspace");
         if let Some(last_ref) = last_workspace {
             let _ = std::process::Command::new(&bin)
                 .args(["select-workspace", "--workspace", &last_ref])
@@ -300,6 +305,8 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
             .args(["new-workspace", "--name", &project_name, "--cwd", &cwd, "--command", &claude_cmd])
             .output()
             .map_err(|e| format!("Failed to spawn cmux: {}", e))?;
+        log(&format!("new-workspace exit={} stdout={} stderr={}",
+            out.status, String::from_utf8_lossy(&out.stdout).trim(), String::from_utf8_lossy(&out.stderr).trim()));
 
         if !out.status.success() {
             return Err(format!(
@@ -323,23 +330,21 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
         }
 
         if !new_ws_ref.is_empty() {
-            // Select the new workspace
+            log(&format!("new_ws_ref={}", new_ws_ref));
             let _ = std::process::Command::new(&bin)
                 .args(["select-workspace", "--workspace", &new_ws_ref])
                 .output();
 
-            // Bring cmux to foreground
-            let _ = std::process::Command::new("/usr/bin/open")
-                .args(["-a", "cmux"])
-                .spawn();
+            let r = std::process::Command::new("/usr/bin/open").args(["-a", "cmux"]).spawn();
+            log(&format!("open -a cmux: {:?}", r.map(|_| "ok")));
 
-            // Get the surface that was auto-created with the workspace and persist it
             if let Some(surface_ref) = get_last_pane_surface(&bin, &new_ws_ref) {
                 let _ = db().save_cmux_surface(&session_id, &new_ws_ref, &surface_ref);
             }
         }
     }
 
+    log("=== resume_in_cmux done Ok(())");
     Ok(())
 }
 
