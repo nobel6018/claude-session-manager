@@ -282,8 +282,8 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
             .output();
 
         // Bring cmux to foreground
-        let _ = std::process::Command::new("/usr/bin/osascript")
-            .args(["-e", r#"tell application "cmux" to activate"#])
+        let _ = std::process::Command::new("/usr/bin/open")
+            .args(["-a", "cmux"])
             .spawn();
 
         // Persist surface mapping for future resumes
