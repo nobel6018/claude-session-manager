@@ -32,6 +32,10 @@ impl Database {
                 workspace_ref TEXT NOT NULL,
                 surface_ref TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS project_workspaces (
+                project_path TEXT PRIMARY KEY,
+                workspace_uuid TEXT NOT NULL
+            );
             CREATE INDEX IF NOT EXISTS idx_tags_session ON session_tags(session_id);
             CREATE INDEX IF NOT EXISTS idx_tags_tag ON session_tags(tag);",
         )?;
@@ -121,16 +125,17 @@ impl Database {
         Ok(ids)
     }
 
-    pub fn save_cmux_surface(&self, session_id: &str, workspace_ref: &str, surface_ref: &str) -> Result<()> {
+    /// Store (session_id → workspace_uuid, terminal_uuid) for session tracking.
+    pub fn save_cmux_session(&self, session_id: &str, workspace_uuid: &str, terminal_uuid: &str) -> Result<()> {
         let conn = self.conn.lock().unwrap();
         conn.execute(
             "INSERT OR REPLACE INTO cmux_surfaces (session_id, workspace_ref, surface_ref) VALUES (?1, ?2, ?3)",
-            params![session_id, workspace_ref, surface_ref],
+            params![session_id, workspace_uuid, terminal_uuid],
         )?;
         Ok(())
     }
 
-    pub fn get_cmux_surface(&self, session_id: &str) -> Result<Option<(String, String)>> {
+    pub fn get_cmux_session(&self, session_id: &str) -> Result<Option<(String, String)>> {
         let conn = self.conn.lock().unwrap();
         let result = conn.query_row(
             "SELECT workspace_ref, surface_ref FROM cmux_surfaces WHERE session_id = ?1",
@@ -144,12 +149,38 @@ impl Database {
         }
     }
 
-    pub fn delete_cmux_surface(&self, session_id: &str) -> Result<()> {
+    pub fn delete_cmux_session(&self, session_id: &str) -> Result<()> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute("DELETE FROM cmux_surfaces WHERE session_id = ?1", params![session_id])?;
+        Ok(())
+    }
+
+    pub fn save_project_workspace(&self, project_path: &str, workspace_uuid: &str) -> Result<()> {
         let conn = self.conn.lock().unwrap();
         conn.execute(
-            "DELETE FROM cmux_surfaces WHERE session_id = ?1",
-            params![session_id],
+            "INSERT OR REPLACE INTO project_workspaces (project_path, workspace_uuid) VALUES (?1, ?2)",
+            params![project_path, workspace_uuid],
         )?;
+        Ok(())
+    }
+
+    pub fn get_project_workspace(&self, project_path: &str) -> Result<Option<String>> {
+        let conn = self.conn.lock().unwrap();
+        let result = conn.query_row(
+            "SELECT workspace_uuid FROM project_workspaces WHERE project_path = ?1",
+            params![project_path],
+            |row| row.get::<_, String>(0),
+        );
+        match result {
+            Ok(uuid) => Ok(Some(uuid)),
+            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(e) => Err(e),
+        }
+    }
+
+    pub fn delete_project_workspace(&self, project_path: &str) -> Result<()> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute("DELETE FROM project_workspaces WHERE project_path = ?1", params![project_path])?;
         Ok(())
     }
 }
