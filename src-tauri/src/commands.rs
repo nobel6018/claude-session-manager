@@ -228,6 +228,9 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
             let _ = std::process::Command::new(&bin)
                 .args(["move-surface", "--surface", &surface_ref, "--index", &idx.to_string(), "--focus", "true"])
                 .output();
+            let _ = std::process::Command::new("osascript")
+                .args(["-e", r#"tell application "cmux" to activate"#])
+                .spawn();
             return Ok(());
         }
         // Surface is dead — clean up stale record
@@ -266,8 +269,8 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
                 .output();
         }
 
-        // Send command
-        let cmd_line = format!("cd {} && {}\n", cwd, claude_cmd);
+        // Send command — cmux interprets literal \n as Enter (not actual newline byte)
+        let cmd_line = format!("cd {} && {}\\n", cwd, claude_cmd);
         std::process::Command::new(&bin)
             .args(["send", "--workspace", &ws_ref, "--surface", &new_surface_ref, &cmd_line])
             .spawn()
@@ -277,6 +280,11 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
         let _ = std::process::Command::new(&bin)
             .args(["select-workspace", "--workspace", &ws_ref])
             .output();
+
+        // Bring cmux to foreground
+        let _ = std::process::Command::new("osascript")
+            .args(["-e", r#"tell application "cmux" to activate"#])
+            .spawn();
 
         // Persist surface mapping for future resumes
         let _ = db().save_cmux_surface(&session_id, &ws_ref, &new_surface_ref);
@@ -304,6 +312,11 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
             let _ = std::process::Command::new(&bin)
                 .args(["select-workspace", "--workspace", &new_ws_ref])
                 .output();
+
+            // Bring cmux to foreground
+            let _ = std::process::Command::new("osascript")
+                .args(["-e", r#"tell application "cmux" to activate"#])
+                .spawn();
 
             // Get the surface that was auto-created with the workspace and persist it
             if let Some(surface_ref) = get_last_pane_surface(&bin, &new_ws_ref) {
