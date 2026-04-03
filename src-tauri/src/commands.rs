@@ -123,7 +123,7 @@ fn resume_in_iterm2(session_id: String, cwd: String) -> Result<(), String> {
         cmd
     );
 
-    std::process::Command::new("osascript")
+    std::process::Command::new("/usr/bin/osascript")
         .args(["-e", &script])
         .spawn()
         .map_err(|e| format!("Failed to open iTerm2: {}", e))?;
@@ -228,8 +228,8 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
             let _ = std::process::Command::new(&bin)
                 .args(["move-surface", "--surface", &surface_ref, "--index", &idx.to_string(), "--focus", "true"])
                 .output();
-            let _ = std::process::Command::new("osascript")
-                .args(["-e", r#"tell application "cmux" to activate"#])
+            let _ = std::process::Command::new("/usr/bin/open")
+                .args(["-a", "cmux"])
                 .spawn();
             return Ok(());
         }
@@ -282,7 +282,7 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
             .output();
 
         // Bring cmux to foreground
-        let _ = std::process::Command::new("osascript")
+        let _ = std::process::Command::new("/usr/bin/osascript")
             .args(["-e", r#"tell application "cmux" to activate"#])
             .spawn();
 
@@ -299,13 +299,28 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
         let out = std::process::Command::new(&bin)
             .args(["new-workspace", "--name", &project_name, "--cwd", &cwd, "--command", &claude_cmd])
             .output()
-            .map_err(|e| format!("Failed to open cmux: {}", e))?;
+            .map_err(|e| format!("Failed to spawn cmux: {}", e))?;
+
+        if !out.status.success() {
+            return Err(format!(
+                "cmux new-workspace failed (exit {}): {}",
+                out.status.code().unwrap_or(-1),
+                String::from_utf8_lossy(&out.stderr).trim()
+            ));
+        }
 
         let new_ws_ref = String::from_utf8_lossy(&out.stdout)
             .split_whitespace()
             .find(|t| t.starts_with("workspace:"))
             .unwrap_or("")
             .to_string();
+
+        if new_ws_ref.is_empty() {
+            return Err(format!(
+                "cmux new-workspace returned unexpected output: {}",
+                String::from_utf8_lossy(&out.stdout).trim()
+            ));
+        }
 
         if !new_ws_ref.is_empty() {
             // Select the new workspace
@@ -314,8 +329,8 @@ fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
                 .output();
 
             // Bring cmux to foreground
-            let _ = std::process::Command::new("osascript")
-                .args(["-e", r#"tell application "cmux" to activate"#])
+            let _ = std::process::Command::new("/usr/bin/open")
+                .args(["-a", "cmux"])
                 .spawn();
 
             // Get the surface that was auto-created with the workspace and persist it

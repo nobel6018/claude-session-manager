@@ -237,7 +237,11 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   resumeSession: async (sessionId: string, cwd: string) => {
-    await invoke("resume_session", { sessionId, cwd, terminal: get().terminalApp });
+    try {
+      await invoke("resume_session", { sessionId, cwd, terminal: get().terminalApp });
+    } catch (e) {
+      alert(`Resume failed: ${e}`);
+    }
   },
 
   setTerminalApp: (app: 'iterm2' | 'cmux') => {
