@@ -230,11 +230,17 @@ RESULT_FILE='__RESULT__'
 MY_WS="$CMUX_WORKSPACE_ID"
 MY_SURFACE="$CMUX_SURFACE_ID"
 
+# Move this temp workspace to end of sidebar immediately
+TOTAL=$(cmux list-workspaces 2>/dev/null | wc -l | tr -d ' ')
+cmux reorder-workspace --workspace "$MY_WS" --index "$TOTAL" 2>/dev/null || true
+
+UUID_RE='[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]-[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]-[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]-[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]-[0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f][0-9A-Fa-f]'
+
 if [ -n "$EXISTING_WS" ] && cmux --id-format uuids list-workspaces 2>/dev/null | grep -qF "$EXISTING_WS"; then
     LAST_SURFACE=$(cmux list-pane-surfaces --workspace "$EXISTING_WS" 2>/dev/null | grep -o 'surface:[0-9]*' | tail -1)
     SURFACE_OUT=$(cmux --id-format uuids new-surface --workspace "$EXISTING_WS" --type terminal 2>&1)
     SURFACE_REF=$(echo "$SURFACE_OUT" | grep -o 'surface:[0-9]*')
-    SURFACE_UUID=$(echo "$SURFACE_OUT" | grep -oE '[A-Za-z0-9-]{36}' | head -1)
+    SURFACE_UUID=$(echo "$SURFACE_OUT" | grep -oE "$UUID_RE" | head -1)
     if [ -n "$SURFACE_REF" ]; then
         [ -n "$LAST_SURFACE" ] && cmux move-surface --surface "$SURFACE_REF" --after "$LAST_SURFACE" --focus true 2>/dev/null || true
         sleep 0.5
