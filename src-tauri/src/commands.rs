@@ -131,226 +131,41 @@ fn resume_in_iterm2(session_id: String, cwd: String) -> Result<(), String> {
     Ok(())
 }
 
-fn cmux_bin() -> String {
-    if std::path::Path::new("/usr/local/bin/cmux").exists() {
-        "/usr/local/bin/cmux".to_string()
-    } else {
-        "/Applications/cmux.app/Contents/Resources/bin/cmux".to_string()
-    }
-}
-
-/// Parse `cmux list-workspaces` and return (find_ref, last_ref).
-/// find_ref: workspace matching `name`, last_ref: last workspace in sidebar.
-/// Output format per line: "[*] workspace:N  [icon] name [tags]"
-fn query_cmux_workspaces(bin: &str, name: &str) -> (Option<String>, Option<String>) {
-    let output = match cmux_run(bin, &["list-workspaces"]) {
-        Ok(o) if o.status.success() => o,
-        _ => return (None, None),
-    };
-
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    let mut found: Option<String> = None;
-    let mut last: Option<String> = None;
-
-    for line in stdout.lines() {
-        let Some(ws_ref) = line.split_whitespace().find(|t| t.starts_with("workspace:")) else {
-            continue;
-        };
-        last = Some(ws_ref.to_string());
-
-        let after_ref = line[line.find(ws_ref).unwrap_or(0) + ws_ref.len()..].trim();
-        let mut tokens = after_ref.split_whitespace().peekable();
-        if let Some(&first) = tokens.peek() {
-            let is_icon = first.chars().count() == 1
-                && !first.chars().next().map_or(false, |c| c.is_alphanumeric());
-            if is_icon { tokens.next(); }
-        }
-        let ws_name = tokens.take_while(|t| !t.starts_with('[')).collect::<Vec<_>>().join(" ");
-
-        if ws_name == name {
-            found = Some(ws_ref.to_string());
-        }
-    }
-
-    (found, last)
-}
-
-
-/// Returns the last surface ref in a workspace's pane (for append ordering).
-/// Output format per line: "[*] surface:N  [icon] name [tags]"
-fn get_last_pane_surface(bin: &str, ws_ref: &str) -> Option<String> {
-    let output = cmux_run(bin, &["list-pane-surfaces", "--workspace", ws_ref]).ok()?;
-
-    if !output.status.success() {
-        return None;
-    }
-
-    String::from_utf8_lossy(&output.stdout)
-        .lines()
-        .filter(|l| !l.trim().is_empty())
-        .last()
-        .and_then(|line| {
-            line.split_whitespace()
-                .find(|t| t.starts_with("surface:"))
-                .map(|s| s.to_string())
-        })
-}
-
-/// Check if a surface still exists in a workspace, and return its 0-based index if so.
-fn cmux_surface_index(bin: &str, ws_ref: &str, surface_ref: &str) -> Option<usize> {
-    let out = cmux_run(bin, &["list-pane-surfaces", "--workspace", ws_ref]).ok()?;
-
-    String::from_utf8_lossy(&out.stdout)
-        .lines()
-        .filter(|l| !l.trim().is_empty())
-        .enumerate()
-        .find(|(_, l)| l.split_whitespace().any(|t| t == surface_ref))
-        .map(|(i, _)| i)
-}
-
-fn log(msg: &str) {
-    use std::io::Write;
-    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open("/tmp/csm-cmux.log") {
-        let _ = writeln!(f, "{}", msg);
-    }
-}
-
-/// Shell-quote a single argument (single-quote style).
-fn sh_quote(s: &str) -> String {
-    format!("'{}'", s.replace('\'', "'\\''"))
-}
-
-/// Run a cmux command via a login shell so that cmux shell integration
-/// (and socket authentication) is loaded from ~/.zprofile / ~/.zshrc.
-fn cmux_run(bin: &str, args: &[&str]) -> std::io::Result<std::process::Output> {
-    let parts: Vec<String> = std::iter::once(sh_quote(bin))
-        .chain(args.iter().map(|a| sh_quote(a)))
-        .collect();
-    let cmd = parts.join(" ");
-    log(&format!("cmux_run: {}", cmd));
-    std::process::Command::new("/bin/zsh")
-        .args(["-l", "-c", &cmd])
-        .output()
-}
-
-/// Spawn a cmux command fire-and-forget via a login shell.
-fn cmux_spawn(bin: &str, args: &[&str]) -> std::io::Result<std::process::Child> {
-    let parts: Vec<String> = std::iter::once(sh_quote(bin))
-        .chain(args.iter().map(|a| sh_quote(a)))
-        .collect();
-    let cmd = parts.join(" ");
-    log(&format!("cmux_spawn: {}", cmd));
-    std::process::Command::new("/bin/zsh")
-        .args(["-l", "-c", &cmd])
-        .spawn()
-}
-
 fn resume_in_cmux(session_id: String, cwd: String) -> Result<(), String> {
-    let bin = cmux_bin();
-    let claude_cmd = format!("claude --resume {}", session_id);
-    log(&format!("=== resume_in_cmux start: session={} cwd={} bin={}", session_id, cwd, bin));
-
-    // 1. Check if this session already has a live cmux surface
-    if let Ok(Some((ws_ref, surface_ref))) = db().get_cmux_surface(&session_id) {
-        log(&format!("path=existing_surface ws={} surface={}", ws_ref, surface_ref));
-        if let Some(idx) = cmux_surface_index(&bin, &ws_ref, &surface_ref) {
-            log(&format!("surface alive at idx={}, focusing", idx));
-            let _ = cmux_run(&bin, &["select-workspace", "--workspace", &ws_ref]);
-            let _ = cmux_run(&bin, &["move-surface", "--surface", &surface_ref, "--index", &idx.to_string(), "--focus", "true"]);
-            let r = std::process::Command::new("/usr/bin/open").args(["-a", "cmux"]).spawn();
-            log(&format!("open -a cmux: {:?}", r.map(|_| "ok")));
-            return Ok(());
-        }
-        log("surface dead, cleaning up");
-        let _ = db().delete_cmux_surface(&session_id);
+    // Escape a string for use inside an AppleScript double-quoted string
+    fn as_escape(s: &str) -> String {
+        s.replace('\\', "\\\\").replace('"', "\\\"")
     }
 
-    // 2. Derive project name for workspace grouping
-    let project_name = std::path::Path::new(&cwd)
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("claude")
-        .to_string();
+    let cmd = format!("cd \"{}\" && claude --resume {}", as_escape(&cwd), session_id);
 
-    log(&format!("project_name={}", project_name));
-    let (ws_match, last_workspace) = query_cmux_workspaces(&bin, &project_name);
-    log(&format!("ws_match={:?} last_workspace={:?}", ws_match, last_workspace));
+    // Use cmux's AppleScript API — works from any process (no socket auth needed)
+    let script = format!(
+        r#"tell application "cmux"
+    activate
+    if (count windows) = 0 then
+        new window
+    end if
+    set newTab to new tab in front window
+    delay 0.8
+    set term to focused terminal of newTab
+    input text "{}" & return to term
+end tell"#,
+        as_escape(&cmd)
+    );
 
-    if let Some(ws_ref) = ws_match {
-        log(&format!("path=existing_workspace ws={}", ws_ref));
-        let last_surface = get_last_pane_surface(&bin, &ws_ref);
+    let out = std::process::Command::new("/usr/bin/osascript")
+        .args(["-e", &script])
+        .output()
+        .map_err(|e| format!("Failed to run osascript: {}", e))?;
 
-        let out = cmux_run(&bin, &["new-surface", "--workspace", &ws_ref, "--type", "terminal"])
-            .map_err(|e| format!("Failed to create surface: {}", e))?;
-        log(&format!("new-surface stdout={}", String::from_utf8_lossy(&out.stdout).trim()));
-
-        let new_surface_ref = String::from_utf8_lossy(&out.stdout)
-            .split_whitespace()
-            .find(|t| t.starts_with("surface:"))
-            .unwrap_or("")
-            .to_string();
-
-        if let Some(last_ref) = last_surface {
-            let _ = cmux_run(&bin, &["move-surface", "--surface", &new_surface_ref, "--after", &last_ref, "--focus", "true"]);
-        }
-
-        // cmux send: literal \n in the shell string sends Enter
-        let cmd_line = format!("cd {} && {}\\n", cwd, claude_cmd);
-        log(&format!("send cmd_line={}", cmd_line));
-        let _ = cmux_spawn(&bin, &["send", "--workspace", &ws_ref, "--surface", &new_surface_ref, &cmd_line]);
-
-        let _ = cmux_run(&bin, &["select-workspace", "--workspace", &ws_ref]);
-
-        let r = std::process::Command::new("/usr/bin/open").args(["-a", "cmux"]).spawn();
-        log(&format!("open -a cmux: {:?}", r.map(|_| "ok")));
-
-        let _ = db().save_cmux_surface(&session_id, &ws_ref, &new_surface_ref);
-    } else {
-        log("path=new_workspace");
-        if let Some(last_ref) = last_workspace {
-            let _ = cmux_run(&bin, &["select-workspace", "--workspace", &last_ref]);
-        }
-
-        let out = cmux_run(&bin, &["new-workspace", "--name", &project_name, "--cwd", &cwd, "--command", &claude_cmd])
-            .map_err(|e| format!("Failed to spawn cmux: {}", e))?;
-        log(&format!("new-workspace exit={} stdout={} stderr={}",
-            out.status, String::from_utf8_lossy(&out.stdout).trim(), String::from_utf8_lossy(&out.stderr).trim()));
-
-        if !out.status.success() {
-            return Err(format!(
-                "cmux new-workspace failed (exit {}): {}",
-                out.status.code().unwrap_or(-1),
-                String::from_utf8_lossy(&out.stderr).trim()
-            ));
-        }
-
-        let new_ws_ref = String::from_utf8_lossy(&out.stdout)
-            .split_whitespace()
-            .find(|t| t.starts_with("workspace:"))
-            .unwrap_or("")
-            .to_string();
-
-        if new_ws_ref.is_empty() {
-            return Err(format!(
-                "cmux new-workspace returned unexpected output: {}",
-                String::from_utf8_lossy(&out.stdout).trim()
-            ));
-        }
-
-        if !new_ws_ref.is_empty() {
-            log(&format!("new_ws_ref={}", new_ws_ref));
-            let _ = cmux_run(&bin, &["select-workspace", "--workspace", &new_ws_ref]);
-
-            let r = std::process::Command::new("/usr/bin/open").args(["-a", "cmux"]).spawn();
-            log(&format!("open -a cmux: {:?}", r.map(|_| "ok")));
-
-            if let Some(surface_ref) = get_last_pane_surface(&bin, &new_ws_ref) {
-                let _ = db().save_cmux_surface(&session_id, &new_ws_ref, &surface_ref);
-            }
-        }
+    if !out.status.success() {
+        return Err(format!(
+            "cmux AppleScript failed: {}",
+            String::from_utf8_lossy(&out.stderr).trim()
+        ));
     }
 
-    log("=== resume_in_cmux done Ok(())");
     Ok(())
 }
 
