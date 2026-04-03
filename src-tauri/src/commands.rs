@@ -108,19 +108,50 @@ pub async fn resume_session(session_id: String, cwd: String, terminal: String) -
 }
 
 fn resume_in_iterm2(session_id: String, cwd: String) -> Result<(), String> {
-    // cd to project directory first so claude --resume can find the session
-    let cmd = format!("cd {} && claude --resume {}", cwd, session_id);
+    let cmd = format!("cd {} && claude --resume {}", as_escape(&cwd), session_id);
+
+    // pgrep으로 이미 실행 중인 세션의 TTY를 찾아 iTerm2 탭 포커스 시도
     let script = format!(
         r#"tell application "iTerm2"
             activate
+            try
+                set sid to "{session_id}"
+                set pid to do shell script "pgrep -f 'claude --resume " & sid & "' 2>/dev/null | head -1"
+                if pid is not "" then
+                    set ttyShort to do shell script "ps -p " & pid & " -o tty= 2>/dev/null | tr -d '[:space:]'"
+                    if ttyShort is not "" then
+                        set fullTty to "/dev/tty" & ttyShort
+                        repeat with aWindow in windows
+                            repeat with aTab in tabs of aWindow
+                                repeat with aSession in sessions of aTab
+                                    try
+                                        if tty of aSession is fullTty then
+                                            select aWindow
+                                            tell aWindow
+                                                set current tab to aTab
+                                            end tell
+                                            tell aTab
+                                                set current session to aSession
+                                            end tell
+                                            return
+                                        end if
+                                    end try
+                                end repeat
+                            end repeat
+                        end repeat
+                    end if
+                end if
+            end try
+            -- 실행 중인 세션 없음 → 새 탭 생성
             tell current window
                 create tab with default profile
                 tell current session
-                    write text "{}"
+                    write text "{cmd}"
                 end tell
             end tell
         end tell"#,
-        cmd
+        session_id = as_escape(&session_id),
+        cmd = as_escape(&cmd),
     );
 
     std::process::Command::new("/usr/bin/osascript")
