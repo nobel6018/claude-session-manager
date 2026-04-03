@@ -460,7 +460,7 @@ dependencies = [
 
 [[package]]
 name = "claude-session-manager"
-version = "0.8.5"
+version = "0.8.6"
 dependencies = [
  "chrono",
  "dirs",
