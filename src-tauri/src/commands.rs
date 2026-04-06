@@ -418,3 +418,15 @@ pub fn refresh_sessions() -> Result<(), String> {
 pub fn get_all_tags() -> Result<Vec<String>, String> {
     db().get_all_unique_tags().map_err(|e| e.to_string())
 }
+
+#[tauri::command]
+/// 실행 중인 터미널 앱을 감지: cmux가 실행 중이면 "cmux", 아니면 "iterm2"
+pub fn detect_terminal() -> String {
+    let cmux_running = std::process::Command::new("pgrep")
+        .args(["-x", "cmux"])
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+
+    if cmux_running { "cmux".to_string() } else { "iterm2".to_string() }
+}

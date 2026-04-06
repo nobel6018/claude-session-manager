@@ -63,6 +63,7 @@ interface AppState {
   toggleShowDeleted: () => void;
   restoreSession: (sessionId: string, projectId: string) => Promise<void>;
   setTerminalApp: (app: 'iterm2' | 'cmux') => void;
+  detectTerminal: () => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -245,6 +246,13 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   setTerminalApp: (app: 'iterm2' | 'cmux') => {
+    localStorage.setItem("terminalApp", app);
+    set({ terminalApp: app });
+  },
+
+  detectTerminal: async () => {
+    const detected = await invoke<string>("detect_terminal");
+    const app = detected as 'iterm2' | 'cmux';
     localStorage.setItem("terminalApp", app);
     set({ terminalApp: app });
   },

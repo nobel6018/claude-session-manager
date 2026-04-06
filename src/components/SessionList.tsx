@@ -9,7 +9,8 @@ interface ContextMenu {
 }
 
 function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () => void }) {
-  const { deleteSession, resumeSession } = useStore();
+  const { deleteSession, resumeSession, terminalApp } = useStore();
+  const terminalLabel = terminalApp === 'cmux' ? 'cmux' : 'iTerm2';
   const ref = useRef<HTMLDivElement>(null);
   const [confirming, setConfirming] = useState(false);
 
@@ -72,7 +73,7 @@ function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () =>
             <svg className="h-3.5 w-3.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            iTerm2에서 재개
+            {terminalLabel}에서 재개
             <span className="ml-auto text-xs text-text-muted">⌘↩</span>
           </button>
           <div className="my-1 border-t border-divider" />

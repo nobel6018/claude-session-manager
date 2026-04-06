@@ -122,6 +122,7 @@ pub fn run() {
             delete_session,
             get_deleted_sessions,
             restore_session,
+            detect_terminal,
         ])
         .build(tauri::generate_context!())
         .expect("error while running tauri application")

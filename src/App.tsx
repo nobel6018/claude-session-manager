@@ -35,7 +35,7 @@ function ResizeHandle({
 }
 
 function App() {
-  const { loadProjects, loadSessions, loadDeletedSessions, theme } = useStore();
+  const { loadProjects, loadSessions, loadDeletedSessions, theme, detectTerminal } = useStore();
 
   const { sidebarCollapsed } = useStore();
   const sidebar = usePanelResize(208, "sidebarWidth", SIDEBAR_SNAPS, 140, 360);
@@ -46,7 +46,8 @@ function App() {
     loadProjects();
     loadSessions();
     loadDeletedSessions();
-  }, [loadProjects, loadSessions, loadDeletedSessions, theme]);
+    detectTerminal(); // 실행 중인 터미널 앱 자동 감지
+  }, [loadProjects, loadSessions, loadDeletedSessions, theme, detectTerminal]);
 
   useKeyboardNav();
 
