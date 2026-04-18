@@ -15,6 +15,7 @@ export function useKeyboardNav() {
     showShortcuts,
     setShowShortcuts,
     toggleSidebar,
+    copySessionId,
   } = useStore();
 
   useEffect(() => {
@@ -54,6 +55,14 @@ export function useKeyboardNav() {
         if (session) {
           resumeSession(session.sessionId, session.cwd);
         }
+        return;
+      }
+
+      // Cmd+Shift+C: Copy selected session ID
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === "c" || e.key === "C" || e.key === "ㅊ")) {
+        e.preventDefault();
+        const session = sessions[selectedIndex];
+        if (session) copySessionId(session.sessionId);
         return;
       }
 
@@ -108,6 +117,14 @@ export function useKeyboardNav() {
         setSearchFocused(true);
         return;
       }
+
+      // y: Copy selected session ID (vim-style yank)
+      if (e.key === "y" || e.key === "ㅛ") {
+        e.preventDefault();
+        const session = sessions[selectedIndex];
+        if (session) copySessionId(session.sessionId);
+        return;
+      }
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -125,5 +142,6 @@ export function useKeyboardNav() {
     showShortcuts,
     setShowShortcuts,
     toggleSidebar,
+    copySessionId,
   ]);
 }

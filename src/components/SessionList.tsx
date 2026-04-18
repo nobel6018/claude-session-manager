@@ -9,7 +9,7 @@ interface ContextMenu {
 }
 
 function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () => void }) {
-  const { deleteSession, resumeSession, terminalApp } = useStore();
+  const { deleteSession, resumeSession, terminalApp, copySessionId } = useStore();
   const terminalLabel = terminalApp === 'cmux' ? 'cmux' : 'iTerm2';
   const ref = useRef<HTMLDivElement>(null);
   const [confirming, setConfirming] = useState(false);
@@ -37,6 +37,11 @@ function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () =>
   const handleResume = async () => {
     onClose();
     await resumeSession(menu.session.sessionId, menu.session.cwd);
+  };
+
+  const handleCopyId = async () => {
+    onClose();
+    await copySessionId(menu.session.sessionId);
   };
 
   return (
@@ -75,6 +80,16 @@ function ContextMenuPopup({ menu, onClose }: { menu: ContextMenu; onClose: () =>
             </svg>
             {terminalLabel}에서 재개
             <span className="ml-auto text-xs text-text-muted">⌘↩</span>
+          </button>
+          <button
+            className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm text-text-primary transition-colors hover:bg-bg-hover"
+            onClick={handleCopyId}
+          >
+            <svg className="h-3.5 w-3.5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            세션 ID 복사
+            <span className="ml-auto text-xs text-text-muted">⌘⇧C</span>
           </button>
           <div className="my-1 border-t border-divider" />
           <button

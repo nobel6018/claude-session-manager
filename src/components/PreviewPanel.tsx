@@ -12,6 +12,8 @@ export function PreviewPanel() {
     removeTag,
     tagInput,
     setTagInput,
+    copySessionId,
+    copiedToast,
   } = useStore();
 
   const selectedSession = sessions.find(
@@ -62,6 +64,31 @@ export function PreviewPanel() {
               <span className="opacity-30">·</span>
               <span>{selectedSession.messageCount} messages</span>
             </div>
+            <button
+              className={`group/id mt-3 inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-[11px] transition-all duration-150 ${
+                copiedToast === selectedSession.sessionId
+                  ? "border-green/40 bg-green/10 text-green"
+                  : "border-divider bg-bg-primary/40 text-text-muted hover:border-accent/40 hover:bg-accent/5 hover:text-accent"
+              }`}
+              onClick={() => copySessionId(selectedSession.sessionId)}
+              title="클릭하여 세션 ID 복사 (⌘⇧C 또는 y)"
+            >
+              {copiedToast === selectedSession.sessionId ? (
+                <>
+                  <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="font-sans text-[11px] font-medium">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-3 w-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  <span>{selectedSession.sessionId}</span>
+                </>
+              )}
+            </button>
           </div>
           <button
             className="shrink-0 rounded-lg border border-accent/40 px-4 py-2.5 text-[13px] font-medium text-accent transition-all duration-150 hover:border-accent/70 hover:bg-accent/10 active:scale-95"

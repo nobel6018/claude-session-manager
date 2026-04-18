@@ -14,6 +14,7 @@ function buildShortcuts(terminalApp: 'iterm2' | 'cmux') {
     ]},
     { section: "세션", items: [
       { keys: ["⌘↩"], description: `선택된 세션 ${terminalName}에서 재개` },
+      { keys: ["⌘⇧C", "y"], description: "선택된 세션 ID 복사" },
       { keys: ["⌫"], description: "선택된 세션 숨김 (복구 가능)" },
       { keys: ["⌘R"], description: "세션 목록 새로고침" },
     ]},

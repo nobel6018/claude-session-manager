@@ -34,6 +34,22 @@ function ResizeHandle({
   );
 }
 
+function CopyToast() {
+  const copiedToast = useStore((s) => s.copiedToast);
+  if (!copiedToast) return null;
+  return (
+    <div className="pointer-events-none fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-green/30 bg-bg-secondary px-4 py-2.5 text-[13px] shadow-xl">
+      <div className="flex items-center gap-2">
+        <svg className="h-3.5 w-3.5 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+        </svg>
+        <span className="text-text-primary">세션 ID 복사됨</span>
+        <span className="font-mono text-[11px] text-text-muted">{copiedToast}</span>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const { loadProjects, loadSessions, loadDeletedSessions, theme, detectTerminal } = useStore();
 
@@ -66,6 +82,7 @@ function App() {
       </div>
       <ShortcutsModal />
       <AboutModal />
+      <CopyToast />
     </div>
   );
 }

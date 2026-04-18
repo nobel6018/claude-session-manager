@@ -35,6 +35,7 @@ interface AppState {
   showDeleted: boolean;
   deletedSessions: import("./types").SessionSummary[];
   terminalApp: 'iterm2' | 'cmux';
+  copiedToast: string | null;
 
   // Actions
   loadProjects: () => Promise<void>;
@@ -64,6 +65,7 @@ interface AppState {
   restoreSession: (sessionId: string, projectId: string) => Promise<void>;
   setTerminalApp: (app: 'iterm2' | 'cmux') => void;
   detectTerminal: () => Promise<void>;
+  copySessionId: (sessionId: string) => Promise<void>;
 }
 
 export const useStore = create<AppState>((set, get) => ({
@@ -89,6 +91,7 @@ export const useStore = create<AppState>((set, get) => ({
   showDeleted: false,
   deletedSessions: [],
   terminalApp: (localStorage.getItem("terminalApp") as 'iterm2' | 'cmux') ?? 'iterm2',
+  copiedToast: null,
 
   loadProjects: async () => {
     const projects = await invoke<Project[]>("get_projects");
@@ -286,5 +289,25 @@ export const useStore = create<AppState>((set, get) => ({
     set({ isLoading: true });
     const raw = await invoke<SessionSummary[]>("search_sessions", { query });
     set({ sessions: sortSessions(raw, get().pinRenamed), isLoading: false, selectedIndex: 0 });
+  },
+
+  copySessionId: async (sessionId: string) => {
+    try {
+      await navigator.clipboard.writeText(sessionId);
+    } catch {
+      // Fallback: textarea + execCommand (구형 webview 호환)
+      const ta = document.createElement("textarea");
+      ta.value = sessionId;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    set({ copiedToast: sessionId });
+    setTimeout(() => {
+      if (get().copiedToast === sessionId) set({ copiedToast: null });
+    }, 1500);
   },
 }));
