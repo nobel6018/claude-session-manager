@@ -72,6 +72,7 @@ The built app will be in `src-tauri/target/release/bundle/`.
 | `k` / `↑` | Previous session |
 | `⌘K` or `/` | Focus search |
 | `⌘Enter` | Resume session in terminal |
+| `⌘⇧C` / `y` | Copy selected session ID |
 | `⌘R` | Refresh session list |
 | `Esc` | Clear search |
 
