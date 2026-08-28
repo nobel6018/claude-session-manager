@@ -1,3 +1,5 @@
+<img src="./assets/logo/csm-mark.svg" alt="Claude Session Manager" width="72" align="left" hspace="12" vspace="4">
+
 # Claude Session Manager
 
 [한국어](./README.md)

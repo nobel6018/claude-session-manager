@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 64 64" role="img" aria-label="Claude Session Manager">
+  <rect x="1.5" y="1.5" width="61" height="61" rx="14.5" fill="#1B2030"/>
+  <g transform="translate(10.24 10.24) scale(0.68)">
+    <rect x="25" y="4" width="34" height="34" rx="8" fill="#12151E" stroke="#E8EAEF" stroke-width="4" stroke-opacity="0.34"/>
+    <rect x="17" y="12.5" width="34" height="34" rx="8" fill="#12151E" stroke="#E8EAEF" stroke-width="4" stroke-opacity="0.62"/>
+    <rect x="9" y="21" width="34" height="34" rx="8" fill="#E4A72E"/>
+    <path d="M22.5 31.6 L30 38 L22.5 44.4" fill="none" stroke="#12151E" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
