@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="CSM alternate mark, Panes">
+  <rect x="5.25" y="5.25" width="53.5" height="53.5" rx="15" fill="none" stroke="#171B26" stroke-width="4.5"/>
+  <rect x="15" y="15" width="15" height="34" rx="3.5" fill="#B8791A"/>
+  <path d="M20.6 26.4 L25.6 32 L20.6 37.6" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="35.7" y="15" width="15" height="14" rx="3.2" fill="none" stroke="#171B26" stroke-width="3.4" stroke-opacity="0.42"/>
+  <rect x="35.7" y="35" width="15" height="14" rx="3.2" fill="none" stroke="#171B26" stroke-width="3.4" stroke-opacity="0.42"/>
+</svg>

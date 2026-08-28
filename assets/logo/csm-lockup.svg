@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="288" height="72" viewBox="0 0 288 72" role="img" aria-label="Claude Session Manager">
+  <g transform="translate(4 4)">
+    <rect x="25" y="4" width="34" height="34" rx="8" fill="#FFFFFF" stroke="#171B26" stroke-width="4" stroke-opacity="0.34"/>
+    <rect x="17" y="12.5" width="34" height="34" rx="8" fill="#FFFFFF" stroke="#171B26" stroke-width="4" stroke-opacity="0.62"/>
+    <rect x="9" y="21" width="34" height="34" rx="8" fill="#B8791A"/>
+    <path d="M22.5 31.6 L30 38 L22.5 44.4" fill="none" stroke="#FFFFFF" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g fill="#171B26" font-family="Archivo, Helvetica Neue, Arial, sans-serif">
+    <text x="84" y="36" font-size="30" font-weight="700" letter-spacing="-1.2">csm</text>
+  </g>
+  <text x="85" y="54" fill="#5D6577" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9.5" letter-spacing="1.7">CLAUDE SESSION MANAGER</text>
+</svg>
