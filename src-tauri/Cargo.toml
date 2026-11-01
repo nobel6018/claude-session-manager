@@ -15,6 +15,9 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
+# 앱 안 업데이트(확인, 서명 검증, 설치)와 설치 뒤 다시 켜기. @see docs/update.md
+tauri-plugin-updater = "2"
+tauri-plugin-process = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 dirs = "6"

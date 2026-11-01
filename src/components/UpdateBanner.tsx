@@ -9,6 +9,9 @@ export function UpdateBanner() {
     currentBackendVersion,
     openReleasePage,
     dismissBackend,
+    phase,
+    installError,
+    install,
   } = useUpdateChecker();
 
   // 확인 중 / 결과 — fixed 토스트 (레이아웃 영향 없음)
@@ -76,6 +79,14 @@ export function UpdateBanner() {
 
   // 백엔드 신규 버전 — in-flow 배너 (영구, 사용자가 직접 닫아야 함)
   if (backendUpdate) {
+    const busy = phase.kind !== "idle";
+    const actionLabel = !backendUpdate.installable
+      ? "앱 다운로드"
+      : phase.kind === "downloading"
+        ? phase.percent === null ? "받는 중..." : `받는 중 ${phase.percent}%`
+        : phase.kind === "installing"
+          ? "설치 중..."
+          : "업데이트하고 다시 켜기";
     return (
       <div className="flex items-center gap-3 border-b border-yellow/20 bg-yellow/8 px-5 py-2.5">
         <svg className="h-4 w-4 shrink-0 text-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,14 +101,24 @@ export function UpdateBanner() {
           )}
         </span>
         <button
-          className="rounded-md bg-yellow/15 px-3 py-1 text-xs font-medium text-yellow transition-colors hover:bg-yellow/25"
-          onClick={() => openReleasePage(backendUpdate.releaseUrl)}
+          className="rounded-md bg-yellow/15 px-3 py-1 text-xs font-medium text-yellow transition-colors hover:bg-yellow/25 disabled:cursor-default disabled:opacity-60"
+          onClick={() => (backendUpdate.installable ? install() : openReleasePage(backendUpdate.releaseUrl))}
+          disabled={busy}
         >
-          앱 다운로드
+          {actionLabel}
         </button>
+        {installError && (
+          <span className="min-w-0 truncate text-[11px] text-red" title={installError}>
+            업데이트하지 못했습니다: {installError}{" "}
+            <button className="underline" onClick={() => openReleasePage(backendUpdate.releaseUrl)}>
+              릴리스 페이지
+            </button>
+          </span>
+        )}
         <button
-          className="ml-auto text-text-muted transition-colors hover:text-text-primary"
+          className="ml-auto text-text-muted transition-colors hover:text-text-primary disabled:opacity-60"
           onClick={dismissBackend}
+          disabled={busy}
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
