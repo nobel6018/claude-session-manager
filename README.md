@@ -47,7 +47,7 @@
 ### 사전 요구사항
 
 - [Rust](https://rustup.rs/) (1.70+)
-- [Node.js](https://nodejs.org/) (18+)
+- [Node.js](https://nodejs.org/) 26 (`mise install` 로 맞출 수 있음)
 
 ### 개발 모드
 

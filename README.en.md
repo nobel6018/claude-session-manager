@@ -47,7 +47,7 @@ Download the latest DMG from [Releases](https://github.com/nobel6018/claude-sess
 ### Prerequisites
 
 - [Rust](https://rustup.rs/) (1.70+)
-- [Node.js](https://nodejs.org/) (18+)
+- [Node.js](https://nodejs.org/) 26 (run `mise install` to match)
 
 ### Development
 
