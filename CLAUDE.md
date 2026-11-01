@@ -31,8 +31,10 @@ git add -A && git commit && git push        # 코드도 함께 push
 ```bash
 bash scripts/build-release.sh
 ```
-- DMG + ad-hoc signed ZIP 모두 생성됨
-- GitHub Release에는 DMG만 올린다 (`_installer.dmg`, `_signed.zip` 제외)
+- DMG + ad-hoc signed ZIP + 앱 안 업데이트 파일(`bundle/dmg/updater/`의 `.app.tar.gz`, `latest.json`)이 생성됨
+- GitHub Release에는 DMG, `.app.tar.gz`, `latest.json`을 올린다 (`_installer.dmg`, `_signed.zip` 제외). 스크립트가 마지막에 `gh release create` 명령을 출력한다
+- `latest.json`을 빠뜨리면 0.9.3 이상 앱이 앱 안 업데이트를 못 하고 다운로드 안내로 돌아간다 (`docs/update.md`)
+- 서명 키 `~/.tauri/claude-session-manager-updater.key`가 없으면 빌드가 실패한다. 잃으면 기존 설치본에 업데이트를 못 보낸다
 
 ### Release Notes 필수 포함 내용
 모든 릴리즈 노트 하단에 아래 설치 안내를 반드시 포함한다:
@@ -41,6 +43,8 @@ bash scripts/build-release.sh
 ---
 
 ## 설치 방법
+
+이미 0.9.3 이상을 쓰고 있으면 앱 위쪽 배너의 "업데이트하고 다시 켜기"로 끝납니다. 아래는 처음 설치할 때만 필요합니다.
 
 DMG를 다운로드한 뒤 `Claude Session Manager.app`을 `/Applications`로 이동하세요.
 
@@ -81,4 +85,4 @@ xattr -cr /Applications/Claude\ Session\ Manager.app
 
 - Apple Developer 계정($99/yr) 없어서 공증(notarization) 불가
 - 배포 시 Gatekeeper 경고 발생 → `xattr -cr` 명령어로 해결
-- 자동 업데이트(`tauri-plugin-updater`)도 공증 없이는 macOS에서 동작 안 함
+- 자동 업데이트(`tauri-plugin-updater`)는 공증 없이도 동작한다(2026-11-02 실측, 0.9.90 → 0.9.91). 앱이 직접 받은 파일에는 격리 표시가 붙지 않아 업데이트 뒤에는 `xattr`가 필요 없다. 첫 설치 1회만 `xattr` 필요 (`docs/update.md`)

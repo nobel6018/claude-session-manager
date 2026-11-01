@@ -12,6 +12,9 @@ use tauri::{Emitter, Manager, WindowEvent};
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        // 앱 안 업데이트와 설치 뒤 다시 켜기. UI(Vercel)가 부른다. @see docs/update.md
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .setup(|app| {
             // ── App menu ─────────────────────────────────────────────
             let check_updates = MenuItem::with_id(
